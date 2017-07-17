@@ -22,11 +22,11 @@ int main() {
   renderer = SDL_CreateRenderer(window, -1, 0); // This function creates a 2D rendering context for the window
   SDL_SetRenderDrawColor(renderer, 255,255,255,255); // The integer parameters are r,g,b,a where a is the alpha-value
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color
-  SDL_Rect r;
-  r.x = 10;
-  r.y = 640;
-  r.w = 50;
-  r.h = 50;
+  SDL_Rect r; // A structure that defines a rectangle
+  r.x = 10; // The x-coordinate of the rectangle's upper left corner
+  r.y = 640; // The y-coordinate of the rectangle's upper left corner
+  r.w = 50; // The width of the rectangle
+  r.h = 50; // The height of the rectangle
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderFillRect(renderer, &r);
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call
@@ -34,11 +34,28 @@ int main() {
     if (SDL_PollEvent(&event))
       {
 	switch(event.type)
-	  {
-	  case SDL_QUIT:
-	    quit = 1;
-	    break;
+	 {
+	 case SDL_QUIT:
+	   quit = 1;
+	  break;
+	case SDL_KEYDOWN:
+	  if (event.key.keysym.sym == SDLK_RIGHT) {
+	    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+	    SDL_RenderClear(renderer);
+	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	    r.x = r.x + 10;
+	    SDL_RenderFillRect(renderer, &r);
+	    SDL_RenderPresent(renderer);
 	  }
+	  else if (event.key.keysym.sym == SDLK_LEFT) {
+	    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	    SDL_RenderClear(renderer);
+	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	    r.x = r.x - 10;
+	    SDL_RenderFillRect(renderer, &r);
+	    SDL_RenderPresent(renderer);
+	  }
+	}
       }
   }
   SDL_DestroyWindow(window); // This destroys the window
