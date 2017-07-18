@@ -1,0 +1,42 @@
+What classes are needed:
+- Player
+- Enemy
+  - Different enemies, different subclasses?
+- Bullet
+  - Different classes for enemy-bullets and player-bullets?
+- Shields for the player?
+
+
+What values for objects of different classes?
+- Player
+  - lives
+  - score
+  - name
+  - image of the player
+  - speed
+- Enemy
+  - type (if there are different enemies)
+  - speed
+  - image of the enemy
+  . amount of points given to the player when the enemy is destroyed
+- Bullet
+  - speed
+  - image of the bullet
+  - type (if different bullets for enemies and player)
+
+
+What methods for objects of different classes?
+- Player
+  - shoot
+  - get_location
+  - check_collision
+  - reduce_lives
+  - increase_score
+- Enemy
+  - shoot (random / determinet)
+  - check_collision
+  - increase_speed
+- Bullet
+  - check_collision
+  - destroy
+  - check_location

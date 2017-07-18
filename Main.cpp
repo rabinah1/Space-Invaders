@@ -31,29 +31,29 @@ int main() {
   SDL_RenderFillRect(renderer, &r);
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call
   while (quit == 0) {
-    if (SDL_PollEvent(&event))
+    if (SDL_PollEvent(&event)) // Poll for pending events
       {
 	switch(event.type)
 	 {
-	 case SDL_QUIT:
+	 case SDL_QUIT: // If the user clicks on the x-button in the top left corner
 	   quit = 1;
-	  break;
-	case SDL_KEYDOWN:
-	  if (event.key.keysym.sym == SDLK_RIGHT) {
-	    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-	    SDL_RenderClear(renderer);
-	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	    r.x = r.x + 10;
-	    SDL_RenderFillRect(renderer, &r);
-	    SDL_RenderPresent(renderer);
+	   break;
+	 case SDL_KEYDOWN: // If some keyboard key is pressed down
+	   if (event.key.keysym.sym == SDLK_RIGHT) { // If the pressed key is the right arrow
+	     SDL_SetRenderDrawColor(renderer, 255,255,255,255); // Set the render draw color to black
+	     SDL_RenderClear(renderer);
+	     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	     r.x = r.x + 10;
+	     SDL_RenderFillRect(renderer, &r);
+	     SDL_RenderPresent(renderer);
 	  }
-	  else if (event.key.keysym.sym == SDLK_LEFT) {
-	    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	    SDL_RenderClear(renderer);
-	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	    r.x = r.x - 10;
-	    SDL_RenderFillRect(renderer, &r);
-	    SDL_RenderPresent(renderer);
+	   else if (event.key.keysym.sym == SDLK_LEFT) { // If the pressed key is the left arrow
+	     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	     SDL_RenderClear(renderer);
+	     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	     r.x = r.x - 10;
+	     SDL_RenderFillRect(renderer, &r);
+	     SDL_RenderPresent(renderer);
 	  }
 	}
       }
