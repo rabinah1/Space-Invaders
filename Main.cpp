@@ -1,8 +1,17 @@
 #include "SDL.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include "Player.h"
 
 int main() {
+  Player player_1;
+  player_1.Set_lives(15);
+  player_1.Set_score(100);
+  player_1.Set_name("Henry");
+  player_1.Print_lives();
+  player_1.Print_score();
+  player_1.Print_name();
   SDL_Event event;
   int quit = 0;
   SDL_Window *window;
@@ -54,8 +63,8 @@ int main() {
 	     r.x = r.x - 10;
 	     SDL_RenderFillRect(renderer, &r);
 	     SDL_RenderPresent(renderer);
-	  }
-	}
+	   }
+	 }
       }
   }
   SDL_DestroyWindow(window); // This destroys the window
