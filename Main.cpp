@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <list>
 #include "Player.h"
 #include "Enemy.h"
 
@@ -10,6 +11,7 @@
 
 int main() {
   // Initialize variables and structures that are needed for the program.
+  int rem = 0;
   int speed = 0;
   int w, h;
   Player player_1; // Create an object "player_1" of class "Player".
@@ -18,6 +20,7 @@ int main() {
   SDL_Window *window;
   SDL_Renderer *renderer; // A structure that contains a rendering state.
   SDL_Texture *PlayerShip = NULL; // A structure that contains representation of pixel data.
+  int CheckIfDestroyed = 1;
   
   player_1.Set_lives(15); // Set the lives of the player to be 15.
   player_1.Set_score(100); // Set the score of the player to be 100.
@@ -44,15 +47,36 @@ int main() {
   SDL_QueryTexture(PlayerShip, NULL, NULL, &w, &h); // Get the width and height of the image.
   SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color
-  SDL_Rect r; // A structure that defines a rectangle
-  r.x = 10; // The x-coordinate of the rectangle's upper left corner
-  r.y = 655; // The y-coordinate of the rectangle's upper left corner
-  r.w = w; // The width of the rectangle
-  r.h = h; // The height of the rectangle
-  SDL_RenderCopy(renderer, PlayerShip, NULL, &r); // Copy the image to the rectangle r.
+  SDL_Rect ShipRect; // A structure that defines a rectangle
+  ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner
+  ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner
+  ShipRect.w = w; // The width of the rectangle
+  ShipRect.h = h; // The height of the rectangle
+  SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect); // Copy the image to the rectangle r.
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call
+  SDL_Rect *PlayerBullet = NULL;
   
   while (quit == 0) {
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
+    if (CheckIfDestroyed == 0)
+      {
+	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+	SDL_RenderFillRect(renderer, PlayerBullet);
+	if (rem % 2 == 0)
+	  {
+	    PlayerBullet->y = PlayerBullet->y - 1;
+	  }
+	rem = rem + 1;
+	SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+	if (PlayerBullet->y < 0)
+	  {
+	    CheckIfDestroyed = 1;
+	    delete(PlayerBullet);
+	    rem = 0;
+	  }
+      }
+    SDL_RenderPresent(renderer);
     if (SDL_PollEvent(&event)) // Poll for pending events
       {
 	switch(event.type)
@@ -63,21 +87,18 @@ int main() {
 	   
 	 case SDL_KEYDOWN: // If some keyboard key is pressed down
 	   if (event.key.keysym.sym == SDLK_RIGHT) { // If the pressed key is the right arrow.
-	     SDL_SetRenderDrawColor(renderer, 0,0,0,255); // Set the render draw color to black.
-	     SDL_RenderClear(renderer);
-	     r.x = r.x + speed;
-	     SDL_RenderCopy(renderer, PlayerShip, NULL, &r);
-	     SDL_RenderPresent(renderer);
+	     ShipRect.x = ShipRect.x + speed;
 	  }
 	   else if (event.key.keysym.sym == SDLK_LEFT) { // If the pressed key is the left arrow.
-	     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	     SDL_RenderClear(renderer);
-	     r.x = r.x - speed;
-	     SDL_RenderCopy(renderer, PlayerShip, NULL, &r);
-	     SDL_RenderPresent(renderer);
+	     ShipRect.x = ShipRect.x - speed;
 	   }
-	   else if (event.key.keysym.sym == SDLK_SPACE) { // If the pressed key is the space button.
-	     printf("Hello world!\n"); // Create a bullet here
+	   else if (event.key.keysym.sym == SDLK_SPACE && CheckIfDestroyed == 1) { // If the pressed key is the space button.
+	     PlayerBullet = new SDL_Rect;
+	     CheckIfDestroyed = 0;
+	     PlayerBullet->x = ShipRect.x + 32;
+	     PlayerBullet->y = ShipRect.y;
+	     PlayerBullet->w = 5;
+	     PlayerBullet->h = 5;
 	   }
 	 }
       }
