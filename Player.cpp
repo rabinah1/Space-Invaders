@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+// This file contains the definitions of the functions that the class Player has.
+
 void Player::Set_lives(int amnt) // Set the amount of lives of the player to be amnt.
 {
   Lives = amnt;

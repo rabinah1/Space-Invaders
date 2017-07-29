@@ -4,10 +4,10 @@
 
 class Player {
  private:
-  int Lives;
-  int Score;
-  int Speed;
-  std::string Name;
+  int Lives; // The amount of lives that the player has left.
+  int Score; // The current score of the player.
+  int Speed; // The speed of the spaceship of the player.
+  std::string Name; // The name of the player.
  public:
   void Set_lives(int amnt);
   void Set_score(int sc);

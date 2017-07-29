@@ -3,7 +3,7 @@
 
 class Enemy {
  private:
-  int Speed;
-  int Type;
+  int Speed; // The speed of an enemy.
+  int Type; // Do i need this?
 };
 #endif
