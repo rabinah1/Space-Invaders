@@ -14,10 +14,14 @@ int main() {
   std::string UserName; // This is the name of the player.
   int remainder = 0; // This is a counter that ensures that position of a bullet shot by the player is updated only once in every two iterations.
   int speed = 0; // This is the speed of the player.
-  int w = 0; // The width of the image of the player's spaceship.
-  int h = 0; // The height of the image of the player's spaceship.
-  int *WindowHeight; // The height of the window.
+  int w_player = 0; // The width of the image of the player's spaceship.
+  int h_player = 0; // The height of the image of the player's spaceship.
+  int init_height = 0;
+  int init_width = 0;
+  int *WindowHeight = &init_height; // The height of the window.
+  int *WindowWidth = &init_width; // The width of the window.
   int quit = 0; // This variable is used to determine when to exit the main loop.
+  int dir = 0;
   int CheckIfDestroyed = 1; // This variable checks whether there is a bullet shot by the player in the field or not. This is important because the player can shoot a new bullet only if the previous bullet has already been destroyed.
   
   Player player_1; // Create an object "player_1" of class "Player".
@@ -26,6 +30,7 @@ int main() {
   SDL_Renderer *renderer; // A structure that contains a rendering state.
   SDL_Texture *PlayerShip; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
   SDL_Rect ShipRect; // A structure that defines a rectangle.
+  SDL_Rect TestEnemy;
   SDL_Rect *PlayerBullet;
   
   player_1.Set_lives(3); // Set the lives of the player to be 3.
@@ -51,21 +56,47 @@ int main() {
   
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // This function creates a 2D rendering context for the window. We set the renderer to use hardware acceleration.
   PlayerShip = IMG_LoadTexture(renderer, IMG_PATH); // Load the image of the spaceship of the player.
-  SDL_QueryTexture(PlayerShip, NULL, NULL, &w, &h); // Get the width and height of the player's spaceship.
+  SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship.
   SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value.
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color.
   ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner.
   ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner.
-  ShipRect.w = w; // The width of the rectangle.
-  ShipRect.h = h; // The height of the rectangle.
+  ShipRect.w = w_player; // The width of the rectangle.
+  ShipRect.h = h_player; // The height of the rectangle.
+  TestEnemy.x = 10;
+  TestEnemy.y = 350;
+  TestEnemy.w = 30;
+  TestEnemy.h = 30;
+  SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+  SDL_RenderFillRect(renderer, &TestEnemy);
+  SDL_SetRenderDrawColor(renderer, 0,0,0,255);
   SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect); // Copy the image to the rectangle ShipRect.
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call.
   
   while (quit == 0) { // Start the main loop of the game.
-    SDL_GetWindowSize(window, NULL, WindowHeight); // Get the height of the window.
+    SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height of the window.
     ShipRect.y = *WindowHeight - 45; // This keeps the player's spaceship in the bottom of the screen even if we resize the window.
+    if (TestEnemy.x == *WindowWidth)
+      {
+	dir = 0;
+      }
+    else if (TestEnemy.x == 10)
+      {
+	dir = 1;
+      }
+    if (dir == 0)
+    {
+    	TestEnemy.x = TestEnemy.x - 1;
+    }
+    else
+    {
+    	TestEnemy.x = TestEnemy.x + 1;
+    }
+    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
     SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
     SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
+    SDL_RenderFillRect(renderer, &TestEnemy);
     if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
       {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
@@ -77,11 +108,11 @@ int main() {
 	remainder = remainder + 1;
 	SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 	if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
-	  {
-	    CheckIfDestroyed = 1;
-	    delete(PlayerBullet);
-	    remainder = 0;
-	  }
+	{
+	  CheckIfDestroyed = 1;
+	  delete(PlayerBullet);
+	  remainder = 0;
+	}
       }
     SDL_RenderPresent(renderer);
     if (SDL_PollEvent(&event)) // Poll for pending events
@@ -99,7 +130,7 @@ int main() {
 	   else if (event.key.keysym.sym == SDLK_LEFT) { // If the pressed key is the left arrow.
 	     ShipRect.x = ShipRect.x - speed; // Move the spaceship to the left.
 	   }
-	   else if (event.key.keysym.sym == SDLK_SPACE && CheckIfDestroyed == 1) { // If the pressed key is the space button and there does not exist a bullet shot by the player in the field..
+	   else if (event.key.keysym.sym == SDLK_SPACE && CheckIfDestroyed == 1) { // If the pressed key is the space button and there does not exist a bullet shot by the player in the field.
 	     PlayerBullet = new SDL_Rect;
 	     CheckIfDestroyed = 0;
 	     PlayerBullet->x = ShipRect.x + 32;
