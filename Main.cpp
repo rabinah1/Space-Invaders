@@ -11,7 +11,8 @@
 
 int main() {
   //Initialize variables and structures that are needed for the program.
-  std::string UserName; // This is the name of the player.
+  SDL_Rect **EnemyList = new SDL_Rect*[2]; // Define an array.
+  std::string UserName = "None"; // This is the name of the player.
   int remainder = 0; // This is a counter that ensures that position of a bullet shot by the player is updated only once in every two iterations.
   int speed = 0; // This is the speed of the player.
   int w_player = 0; // The width of the image of the player's spaceship.
@@ -26,12 +27,13 @@ int main() {
   
   Player player_1; // Create an object "player_1" of class "Player".
   SDL_Event event; // A union that contains structures for different event types.
-  SDL_Window *window; // The window where we will be rendering to.
-  SDL_Renderer *renderer; // A structure that contains a rendering state.
-  SDL_Texture *PlayerShip; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
+  SDL_Window *window = NULL; // The window where we will be rendering to.
+  SDL_Renderer *renderer = NULL; // A structure that contains a rendering state.
+  SDL_Texture *PlayerShip = NULL; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
   SDL_Rect ShipRect; // A structure that defines a rectangle.
-  SDL_Rect TestEnemy;
-  SDL_Rect *PlayerBullet;
+  SDL_Rect *TestEnemy = NULL;
+  SDL_Rect *TestEnemy2 = NULL;
+  SDL_Rect *PlayerBullet = NULL;
   
   player_1.Set_lives(3); // Set the lives of the player to be 3.
   player_1.Set_score(0); // Set the score of the player to be 0.
@@ -41,7 +43,7 @@ int main() {
   std::cin >> UserName;
   player_1.Set_name(UserName); // Set the name of the player.
   
-  SDL_Init(SDL_INIT_EVERYTHING); // Initialize the SDL-window.
+  SDL_Init(SDL_INIT_VIDEO); // Initialize the SDL-window.
   window = SDL_CreateWindow("Space Invaders", // Title of the window.
 			    100, // X-coordinate of the upper left corner of the window.
 			    50, // Y-coordinate of the upper left corner of the window.
@@ -53,7 +55,11 @@ int main() {
     printf("Could not create window: %s\n", SDL_GetError());
     return 1;
   }
-  
+
+  TestEnemy = new SDL_Rect;
+  TestEnemy2 = new SDL_Rect;
+  EnemyList[0] = TestEnemy;
+  EnemyList[1] = TestEnemy2;
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // This function creates a 2D rendering context for the window. We set the renderer to use hardware acceleration.
   PlayerShip = IMG_LoadTexture(renderer, IMG_PATH); // Load the image of the spaceship of the player.
   SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship.
@@ -63,12 +69,17 @@ int main() {
   ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner.
   ShipRect.w = w_player; // The width of the rectangle.
   ShipRect.h = h_player; // The height of the rectangle.
-  TestEnemy.x = 10;
-  TestEnemy.y = 350;
-  TestEnemy.w = 30;
-  TestEnemy.h = 30;
+  TestEnemy->x = 10;
+  TestEnemy->y = 350;
+  TestEnemy->w = 20;
+  TestEnemy->h = 20;
+  TestEnemy2->x = 40;
+  TestEnemy2->y = 350;
+  TestEnemy2->w = 20;
+  TestEnemy2->h = 20;
   SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-  SDL_RenderFillRect(renderer, &TestEnemy);
+  SDL_RenderFillRect(renderer, TestEnemy);
+  SDL_RenderFillRect(renderer, TestEnemy2);
   SDL_SetRenderDrawColor(renderer, 0,0,0,255);
   SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect); // Copy the image to the rectangle ShipRect.
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call.
@@ -76,27 +87,31 @@ int main() {
   while (quit == 0) { // Start the main loop of the game.
     SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height of the window.
     ShipRect.y = *WindowHeight - 45; // This keeps the player's spaceship in the bottom of the screen even if we resize the window.
-    if (TestEnemy.x == *WindowWidth)
+    for(int i = 0; i < 2; ++i)
       {
-	dir = 0;
+	if ((EnemyList[i])->x == *WindowWidth)
+	  {
+	    dir = 0;
+	  }
+	else if ((EnemyList[i])->x == 10 + i*30)
+	  {
+	    dir = 1;
+	  }
+	if (dir == 0)
+	  {
+	    (EnemyList[i])->x = (EnemyList[i])->x - 1;
+	  }
+	else
+	  {
+	    (EnemyList[i])->x = (EnemyList[i])->x + 1;
+	  }
       }
-    else if (TestEnemy.x == 10)
-      {
-	dir = 1;
-      }
-    if (dir == 0)
-    {
-    	TestEnemy.x = TestEnemy.x - 1;
-    }
-    else
-    {
-    	TestEnemy.x = TestEnemy.x + 1;
-    }
     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
     SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
-    SDL_RenderFillRect(renderer, &TestEnemy);
+    SDL_RenderFillRect(renderer, TestEnemy);
+    SDL_RenderFillRect(renderer, TestEnemy2);
     if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
       {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
@@ -121,6 +136,8 @@ int main() {
 	 {
 	 case SDL_QUIT: // If the user clicks on the x-button in the top left corner
 	   quit = 1;
+	   delete(TestEnemy);
+	   delete(TestEnemy2);
 	   break;
 	   
 	 case SDL_KEYDOWN: // If some keyboard key is pressed down
@@ -141,6 +158,7 @@ int main() {
 	 }
       }
   }
+  delete [] EnemyList;
   SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
   SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
   SDL_DestroyWindow(window); // This destroys the window
