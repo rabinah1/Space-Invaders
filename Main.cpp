@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include <list>
+#include <time.h>
 #include "Player.h"
 #include "Enemy.h"
 
-#define IMG_PATH "Space_ship.png"
+#define USER "Space_ship.png"
+#define ENEMY "Enemy.png"
 
 int main() {
   //Initialize variables and structures that are needed for the program.
@@ -17,12 +19,15 @@ int main() {
   int speed = 0; // This is the speed of the player.
   int w_player = 0; // The width of the image of the player's spaceship.
   int h_player = 0; // The height of the image of the player's spaceship.
+  int w_enemy = 0;
+  int h_enemy = 0;
   int init_height = 0;
   int init_width = 0;
   int *WindowHeight = &init_height; // The height of the window.
   int *WindowWidth = &init_width; // The width of the window.
   int quit = 0; // This variable is used to determine when to exit the main loop.
   int dir = 0;
+  clock_t t;
   int CheckIfDestroyed = 1; // This variable checks whether there is a bullet shot by the player in the field or not. This is important because the player can shoot a new bullet only if the previous bullet has already been destroyed.
   
   Player player_1; // Create an object "player_1" of class "Player".
@@ -30,6 +35,7 @@ int main() {
   SDL_Window *window = NULL; // The window where we will be rendering to.
   SDL_Renderer *renderer = NULL; // A structure that contains a rendering state.
   SDL_Texture *PlayerShip = NULL; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
+  SDL_Texture *EnemyAlien = NULL;
   SDL_Rect ShipRect; // A structure that defines a rectangle.
   SDL_Rect *TestEnemy = NULL;
   SDL_Rect *TestEnemy2 = NULL;
@@ -47,9 +53,9 @@ int main() {
   window = SDL_CreateWindow("Space Invaders", // Title of the window.
 			    100, // X-coordinate of the upper left corner of the window.
 			    50, // Y-coordinate of the upper left corner of the window.
-			    1000, // Size of the window in x-direction.
-			    700, // Size of the window in y-direction.
-			    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE // In here we can add different flags. Syntax for multiple flags is: flag1 | flag2 | flag3...
+			    1100, // Size of the window in x-direction.
+			    800, // Size of the window in y-direction.
+			    SDL_WINDOW_OPENGL/* | SDL_WINDOW_RESIZABLE*/ // In here we can add different flags. Syntax for multiple flags is: flag1 | flag2 | flag3...
 			    );
   if (window == NULL) { // If the creation of the window was not succesfull
     printf("Could not create window: %s\n", SDL_GetError());
@@ -61,8 +67,10 @@ int main() {
   EnemyList[0] = TestEnemy;
   EnemyList[1] = TestEnemy2;
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); // This function creates a 2D rendering context for the window. We set the renderer to use hardware acceleration.
-  PlayerShip = IMG_LoadTexture(renderer, IMG_PATH); // Load the image of the spaceship of the player.
+  PlayerShip = IMG_LoadTexture(renderer, USER); // Load the image of the spaceship of the player.
+  EnemyAlien = IMG_LoadTexture(renderer, ENEMY);
   SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship.
+  SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy);
   SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value.
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color.
   ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner.
@@ -71,47 +79,54 @@ int main() {
   ShipRect.h = h_player; // The height of the rectangle.
   TestEnemy->x = 10;
   TestEnemy->y = 350;
-  TestEnemy->w = 20;
-  TestEnemy->h = 20;
-  TestEnemy2->x = 40;
+  TestEnemy->w = w_enemy;
+  TestEnemy->h = h_enemy;
+  TestEnemy2->x = 50;
   TestEnemy2->y = 350;
-  TestEnemy2->w = 20;
-  TestEnemy2->h = 20;
+  TestEnemy2->w = w_enemy;
+  TestEnemy2->h = h_enemy;
   SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-  SDL_RenderFillRect(renderer, TestEnemy);
-  SDL_RenderFillRect(renderer, TestEnemy2);
   SDL_SetRenderDrawColor(renderer, 0,0,0,255);
   SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect); // Copy the image to the rectangle ShipRect.
+  SDL_RenderCopy(renderer, EnemyAlien, NULL, TestEnemy);
+  SDL_RenderCopy(renderer, EnemyAlien, NULL, TestEnemy2);
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call.
+  t = clock();
   
   while (quit == 0) { // Start the main loop of the game.
     SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height of the window.
     ShipRect.y = *WindowHeight - 45; // This keeps the player's spaceship in the bottom of the screen even if we resize the window.
-    for(int i = 0; i < 2; ++i)
+    if (float(clock()-t)/CLOCKS_PER_SEC > 0.35)
       {
-	if ((EnemyList[i])->x == *WindowWidth)
+	for(int i = 0; i < 2; ++i)
 	  {
-	    dir = 0;
-	  }
-	else if ((EnemyList[i])->x == 10 + i*30)
-	  {
-	    dir = 1;
-	  }
-	if (dir == 0)
-	  {
-	    (EnemyList[i])->x = (EnemyList[i])->x - 1;
-	  }
-	else
-	  {
-	    (EnemyList[i])->x = (EnemyList[i])->x + 1;
+	    t = clock();
+	    if ((EnemyList[i])->x == *WindowWidth)
+	      {
+		dir = 0;
+	      }
+	    else if ((EnemyList[i])->x == 10 + i*40)
+	      {
+		dir = 1;
+	      }
+	    if (dir == 0)
+	      {
+		(EnemyList[i])->x = (EnemyList[i])->x - 15;
+	      }
+	    else
+	      {
+		(EnemyList[i])->x = (EnemyList[i])->x + 15;
+	      }
 	  }
       }
     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
     SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
-    SDL_RenderFillRect(renderer, TestEnemy);
-    SDL_RenderFillRect(renderer, TestEnemy2);
+    SDL_RenderCopy(renderer, EnemyAlien, NULL, TestEnemy);
+    SDL_RenderCopy(renderer, EnemyAlien, NULL, TestEnemy2);
+    //SDL_RenderFillRect(renderer, TestEnemy);
+    //SDL_RenderFillRect(renderer, TestEnemy2);
     if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
       {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
