@@ -38,19 +38,25 @@ int main() {
   }
   r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawColor(r, 0,0,0,255);
-  TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 80);
-  TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 10);
+  TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 140);
+  TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 13);
   SDL_Color Green = {0,255,0};
   SDL_Color White = {255,255,255};
   SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green);
   SDL_Surface *surfaceHeading2 = TTF_RenderText_Solid(HeadingFont, "Invaders", Green);
   SDL_Surface *surfaceStart = TTF_RenderText_Solid(ButtonFont, "Start game", White);
+  SDL_Surface *surfaceControls = TTF_RenderText_Solid(ButtonFont, "Controls", White);
+  SDL_Surface *surfaceExit = TTF_RenderText_Solid(ButtonFont, "Exit", White);
   SDL_Texture *Heading1 = SDL_CreateTextureFromSurface(r, surfaceHeading1);
   SDL_Texture *Heading2 = SDL_CreateTextureFromSurface(r, surfaceHeading2);
   SDL_Texture *StartButton = SDL_CreateTextureFromSurface(r, surfaceStart);
+  SDL_Texture *ControlsButton = SDL_CreateTextureFromSurface(r, surfaceControls);
+  SDL_Texture *ExitButton = SDL_CreateTextureFromSurface(r, surfaceExit);
   SDL_Rect Heading1_Rect;
   SDL_Rect Heading2_Rect;
   SDL_Rect Start_Rect;
+  SDL_Rect Controls_Rect;
+  SDL_Rect Exit_Rect;
   Heading1_Rect.x = 380;
   Heading1_Rect.y = 80;
   Heading1_Rect.w = 300;
@@ -63,10 +69,20 @@ int main() {
   Start_Rect.y = 410;
   Start_Rect.w = 200;
   Start_Rect.h = 70;
+  Controls_Rect.x = 420;
+  Controls_Rect.y = 520;
+  Controls_Rect.w = 200;
+  Controls_Rect.h = 70;
+  Exit_Rect.x = 465;
+  Exit_Rect.y = 630;
+  Exit_Rect.w = 100;
+  Exit_Rect.h = 70;
   SDL_RenderClear(r);
   SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect);
   SDL_RenderCopy(r, Heading2, NULL, &Heading2_Rect);
   SDL_RenderCopy(r, StartButton, NULL, &Start_Rect);
+  SDL_RenderCopy(r, ControlsButton, NULL, &Controls_Rect);
+  SDL_RenderCopy(r, ExitButton, NULL, &Exit_Rect);
   SDL_RenderPresent(r);
   while (quit == 0)
     {
@@ -83,27 +99,51 @@ int main() {
 	     SDL_FreeSurface(surfaceHeading1);
 	     SDL_FreeSurface(surfaceHeading2);
 	     SDL_FreeSurface(surfaceStart);
+	     SDL_FreeSurface(surfaceControls);
+	     SDL_FreeSurface(surfaceExit);
 	     SDL_DestroyTexture(Heading1);
 	     SDL_DestroyTexture(Heading2);
 	     SDL_DestroyTexture(StartButton);
+	     SDL_DestroyTexture(ControlsButton);
+	     SDL_DestroyTexture(ExitButton);
 	     TTF_CloseFont(HeadingFont);
 	     TTF_CloseFont(ButtonFont);
 	     game(e, w, r);
 	     return 0;
 	   }
+	   else if (*mousex >= 465 && *mousex <= 565 && *mousey >= 630 && *mousey <= 700)
+	     {
+	       quit = 1;
+	     }
+	   else if (*mousex >= 420 && *mousex <= 620 && *mousey >= 520 && *mousey <= 590)
+	     {
+	       GuideWindow(e, w, r);
+	       SDL_RenderClear(r);
+	       SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect);
+	       SDL_RenderCopy(r, Heading2, NULL, &Heading2_Rect);
+	       SDL_RenderCopy(r, StartButton, NULL, &Start_Rect);
+	       SDL_RenderCopy(r, ControlsButton, NULL, &Controls_Rect);
+	       SDL_RenderCopy(r, ExitButton, NULL, &Exit_Rect);
+	       SDL_RenderPresent(r);
+	     }
 	 }
       }
     }
   SDL_FreeSurface(surfaceHeading1);
   SDL_FreeSurface(surfaceHeading2);
   SDL_FreeSurface(surfaceStart);
+  SDL_FreeSurface(surfaceControls);
+  SDL_FreeSurface(surfaceExit);
   SDL_DestroyTexture(Heading1);
   SDL_DestroyTexture(Heading2);
   SDL_DestroyTexture(StartButton);
+  SDL_DestroyTexture(ControlsButton);
+  SDL_DestroyTexture(ExitButton);
   TTF_CloseFont(HeadingFont);
   TTF_CloseFont(ButtonFont);
   SDL_DestroyWindow(w);
   SDL_DestroyRenderer(r);
+  SDL_Quit();
   return 0;
 }
 
@@ -124,6 +164,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int *WindowWidth = &init_width; // The width of the window.
   int quit = 0; // This variable is used to determine when to exit the main loop.
   int dir = 1; // This variable defines the direction to which the enemis move. Enemies can move to left or right.
+  int PauseFlag = 0;
   clock_t t;
   int CheckIfDestroyed = 1; // This variable checks whether there is a bullet shot by the player in the field or not. This is important because the player can shoot a new bullet only if the previous bullet has already been destroyed.
   
@@ -237,6 +278,37 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	     PlayerBullet->w = 5;
 	     PlayerBullet->h = 5;
 	   }
+	   else if (event.key.keysym.sym == SDLK_p) {
+	     while (1)
+	       {
+		 if (SDL_PollEvent(&event))
+		   {
+		     switch(event.type)
+		       {
+		       case SDL_QUIT:
+			 quit = 1;
+			 PauseFlag = 1;
+			 for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy.
+			   {
+			     delete(EnemyList[j]);
+			   }
+			 break;
+			 
+		       case SDL_KEYDOWN:
+			 if (event.key.keysym.sym == SDLK_p)
+			   {
+			     PauseFlag = 1;
+			     break;
+			   }
+		       }
+		     if (PauseFlag == 1)
+		       {
+			 PauseFlag = 0;
+			 break;
+		       }
+		   }
+	       }
+	   }
 	 }
       }
   }
@@ -244,6 +316,5 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_DestroyTexture(EnemyAlien);
   SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
   SDL_DestroyWindow(window); // This destroys the window
-  SDL_Quit();
   return 0;
 }

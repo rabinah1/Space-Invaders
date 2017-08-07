@@ -1,5 +1,7 @@
 #include <vector>
 #include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_ttf.h"
 
 std::vector <SDL_Rect*> InitEnemyList()
 {
@@ -105,4 +107,69 @@ std::vector <SDL_Rect*> InitEnemyList()
   List.push_back(Enemy49);
   List.push_back(Enemy50);
   return List;
+}
+
+
+int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
+{
+  int exit = 0;
+  TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 35);
+  SDL_SetRenderDrawColor(r, 0,0,0,255);
+  SDL_RenderClear(r);
+  SDL_Color White = {255,255,255};
+  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "- Left arrow = Move left", White);
+  SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "- Right arrow = Move right", White);
+  SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "- Space = Shoot", White);
+  SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "- Pause = p", White);
+  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1);
+  SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
+  SDL_Texture *texture3 = SDL_CreateTextureFromSurface(r, surface3);
+  SDL_Texture *texture4 = SDL_CreateTextureFromSurface(r, surface4);
+  SDL_Rect Rect1;
+  SDL_Rect Rect2;
+  SDL_Rect Rect3;
+  SDL_Rect Rect4;
+  Rect1.x = 300;
+  Rect1.y = 180;
+  Rect1.w = 420;
+  Rect1.h = 100;
+  Rect2.x = 300;
+  Rect2.y = 300;
+  Rect2.w = 420;
+  Rect2.h = 100;
+  Rect3.x = 340;
+  Rect3.y = 420;
+  Rect3.w = 340;
+  Rect3.h = 100;
+  Rect4.x = 370;
+  Rect4.y = 540;
+  Rect4.w = 280;
+  Rect4.h = 100;
+  SDL_RenderCopy(r, texture1, NULL, &Rect1);
+  SDL_RenderCopy(r, texture2, NULL, &Rect2);
+  SDL_RenderCopy(r, texture3, NULL, &Rect3);
+  SDL_RenderCopy(r, texture4, NULL, &Rect4);
+  SDL_RenderPresent(r);
+  while (exit == 0)
+    {
+      if (SDL_PollEvent(&e))
+	{
+	  switch(e.type)
+	    {
+	    case SDL_QUIT:
+	      exit = 1;
+	      break;
+	    }
+	}
+    }
+  SDL_FreeSurface(surface1);
+  SDL_FreeSurface(surface2);
+  SDL_FreeSurface(surface3);
+  SDL_FreeSurface(surface4);
+  SDL_DestroyTexture(texture1);
+  SDL_DestroyTexture(texture2);
+  SDL_DestroyTexture(texture3);
+  SDL_DestroyTexture(texture4);
+  TTF_CloseFont(Font);
+  return 0;
 }
