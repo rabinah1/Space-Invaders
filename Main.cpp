@@ -6,7 +6,6 @@
 #include <time.h>
 #include <vector>
 #include "Player.h"
-#include "Enemy.h"
 #include "Functions.h"
 
 #define USER "Space_ship.png"
