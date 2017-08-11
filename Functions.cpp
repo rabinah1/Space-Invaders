@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#include <stdio.h>
 
 std::vector <SDL_Rect*> InitEnemyList()
 {
@@ -112,8 +113,13 @@ std::vector <SDL_Rect*> InitEnemyList()
 
 int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
 {
+  int mousex_init = 0;
+  int mousey_init = 0;
+  int *mousex = &mousex_init;
+  int *mousey = &mousey_init;
   int exit = 0;
   TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 35);
+  TTF_Font *Font2 = TTF_OpenFont("Ubuntu-L.ttf", 100);
   SDL_SetRenderDrawColor(r, 0,0,0,255);
   SDL_RenderClear(r);
   SDL_Color White = {255,255,255};
@@ -121,37 +127,46 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
   SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "- Right arrow = Move right", White);
   SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "- Space = Shoot", White);
   SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "- Pause = p", White);
+  SDL_Surface *surface5 = TTF_RenderText_Solid(Font2, "Menu", White);
   SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1);
   SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
   SDL_Texture *texture3 = SDL_CreateTextureFromSurface(r, surface3);
   SDL_Texture *texture4 = SDL_CreateTextureFromSurface(r, surface4);
+  SDL_Texture *texture5 = SDL_CreateTextureFromSurface(r, surface5);
   SDL_Rect Rect1;
   SDL_Rect Rect2;
   SDL_Rect Rect3;
   SDL_Rect Rect4;
+  SDL_Rect Rect5;
   Rect1.x = 300;
-  Rect1.y = 180;
+  Rect1.y = 80;
   Rect1.w = 420;
   Rect1.h = 100;
   Rect2.x = 300;
-  Rect2.y = 300;
+  Rect2.y = 200;
   Rect2.w = 420;
   Rect2.h = 100;
   Rect3.x = 340;
-  Rect3.y = 420;
+  Rect3.y = 320;
   Rect3.w = 340;
   Rect3.h = 100;
   Rect4.x = 370;
-  Rect4.y = 540;
+  Rect4.y = 440;
   Rect4.w = 280;
   Rect4.h = 100;
+  Rect5.x = 395;
+  Rect5.y = 660;
+  Rect5.w = 230;
+  Rect5.h = 100;
   SDL_RenderCopy(r, texture1, NULL, &Rect1);
   SDL_RenderCopy(r, texture2, NULL, &Rect2);
   SDL_RenderCopy(r, texture3, NULL, &Rect3);
   SDL_RenderCopy(r, texture4, NULL, &Rect4);
+  SDL_RenderCopy(r, texture5, NULL, &Rect5);
   SDL_RenderPresent(r);
   while (exit == 0)
     {
+      SDL_GetMouseState(mousex, mousey);
       if (SDL_PollEvent(&e))
 	{
 	  switch(e.type)
@@ -159,6 +174,12 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
 	    case SDL_QUIT:
 	      exit = 1;
 	      break;
+	    case SDL_MOUSEBUTTONUP:
+	      if (*mousex >= 395 && *mousex <= 625 && *mousey >= 660 && *mousey <= 760)
+		{
+		  exit = 1;
+		  break;
+		}
 	    }
 	}
     }
@@ -166,10 +187,13 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
   SDL_FreeSurface(surface2);
   SDL_FreeSurface(surface3);
   SDL_FreeSurface(surface4);
+  SDL_FreeSurface(surface5);
   SDL_DestroyTexture(texture1);
   SDL_DestroyTexture(texture2);
   SDL_DestroyTexture(texture3);
   SDL_DestroyTexture(texture4);
+  SDL_DestroyTexture(texture5);
   TTF_CloseFont(Font);
+  TTF_CloseFont(Font2);
   return 0;
 }

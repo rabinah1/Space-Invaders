@@ -18,6 +18,7 @@ int main() {
   SDL_Window *w = NULL;
   SDL_Renderer *r = NULL;
   int quit = 0;
+  int return_value = 0;
   int mousex_init = 0;
   int mousey_init = 0;
   int *mousex = &mousex_init;
@@ -38,7 +39,7 @@ int main() {
   r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED);
   SDL_SetRenderDrawColor(r, 0,0,0,255);
   TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 140);
-  TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 13);
+  TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 35);
   SDL_Color Green = {0,255,0};
   SDL_Color White = {255,255,255};
   SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green);
@@ -95,20 +96,33 @@ int main() {
 
 	 case SDL_MOUSEBUTTONUP:
 	   if (*mousex >= 420 && *mousex <= 620 && *mousey >= 410 && *mousey <= 480) {
-	     SDL_FreeSurface(surfaceHeading1);
-	     SDL_FreeSurface(surfaceHeading2);
-	     SDL_FreeSurface(surfaceStart);
-	     SDL_FreeSurface(surfaceControls);
-	     SDL_FreeSurface(surfaceExit);
-	     SDL_DestroyTexture(Heading1);
-	     SDL_DestroyTexture(Heading2);
-	     SDL_DestroyTexture(StartButton);
-	     SDL_DestroyTexture(ControlsButton);
-	     SDL_DestroyTexture(ExitButton);
-	     TTF_CloseFont(HeadingFont);
-	     TTF_CloseFont(ButtonFont);
-	     game(e, w, r);
-	     return 0;
+	     return_value = game(e, w, r);
+	     if (return_value != 1)
+	       {
+		 SDL_FreeSurface(surfaceHeading1);
+		 SDL_FreeSurface(surfaceHeading2);
+		 SDL_FreeSurface(surfaceStart);
+		 SDL_FreeSurface(surfaceControls);
+		 SDL_FreeSurface(surfaceExit);
+		 SDL_DestroyTexture(Heading1);
+		 SDL_DestroyTexture(Heading2);
+		 SDL_DestroyTexture(StartButton);
+		 SDL_DestroyTexture(ControlsButton);
+		 SDL_DestroyTexture(ExitButton);
+		 TTF_CloseFont(HeadingFont);
+		 TTF_CloseFont(ButtonFont);
+		 return 0;
+	       }
+	     else
+	       {
+		 SDL_RenderClear(r);
+		 SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect);
+		 SDL_RenderCopy(r, Heading2, NULL, &Heading2_Rect);
+		 SDL_RenderCopy(r, StartButton, NULL, &Start_Rect);
+		 SDL_RenderCopy(r, ControlsButton, NULL, &Controls_Rect);
+		 SDL_RenderCopy(r, ExitButton, NULL, &Exit_Rect);
+		 SDL_RenderPresent(r);
+	       }
 	   }
 	   else if (*mousex >= 465 && *mousex <= 565 && *mousey >= 630 && *mousey <= 700)
 	     {
@@ -148,6 +162,14 @@ int main() {
 
 int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   //Initialize variables and structures that are needed for the program.
+  TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 65);
+  int mousex_init = 0;
+  int mousey_init = 0;
+  int *mousex = &mousex_init;
+  int *mousey = &mousey_init;
+  SDL_Color White = {255,255,255};
+  SDL_Surface *surfaceButton1 = TTF_RenderText_Solid(ButtonFont, "Return to menu", White);
+  SDL_Surface *surfaceButton2 = TTF_RenderText_Solid(ButtonFont, "Exit", White);
   std::vector <SDL_Rect*> EnemyList; // A vector that contains pointers to enemies.
   EnemyList = InitEnemyList(); // Create enemies and add them to a list. This function can be found in the file "Functions.cpp".
   std::string UserName = "Henry"; // This is the name of the player.
@@ -185,6 +207,18 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy);
   SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value.
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color.
+  SDL_Texture *Button1 = SDL_CreateTextureFromSurface(renderer, surfaceButton1);
+  SDL_Texture *Button2 = SDL_CreateTextureFromSurface(renderer, surfaceButton2);
+  SDL_Rect Button1Rect;
+  SDL_Rect Button2Rect;
+  Button1Rect.x = 10;
+  Button1Rect.y = 5;
+  Button1Rect.w = 330;
+  Button1Rect.h = 100;
+  Button2Rect.x = 950;
+  Button2Rect.y = 5;
+  Button2Rect.w = 120;
+  Button2Rect.h = 100;
   ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner.
   ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner.
   ShipRect.w = w_player; // The width of the rectangle.
@@ -280,6 +314,28 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	   else if (event.key.keysym.sym == SDLK_p) {
 	     while (1)
 	       {
+		 SDL_GetMouseState(mousex, mousey);
+		 SDL_RenderClear(renderer);
+		 SDL_RenderCopy(renderer, Button1, NULL, &Button1Rect);
+		 SDL_RenderCopy(renderer, Button2, NULL, &Button2Rect);
+		 SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
+		 for (int j = 0; j < EnemyList.size(); ++j) // Loop through all the enemies.
+		   {
+		     SDL_RenderCopy(renderer, EnemyAlien, NULL, EnemyList[j]);
+		   }
+		 if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
+		   {
+		     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+		     SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
+		     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+		     if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
+		       {
+			 CheckIfDestroyed = 1;
+			 delete(PlayerBullet);
+			 remainder = 0;
+		       }
+		   }
+		 SDL_RenderPresent(renderer);
 		 if (SDL_PollEvent(&event))
 		   {
 		     switch(event.type)
@@ -298,6 +354,16 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			   {
 			     PauseFlag = 1;
 			     break;
+			   }
+
+		       case SDL_MOUSEBUTTONUP:
+			 if (*mousex >= 10 && *mousex <= 340 && *mousey >= 5 && *mousey <= 105)
+			   {
+			     return 1;
+			   }
+			 else if (*mousex >= 950 && *mousex <= 1070 && *mousey >= 5 && *mousey <= 105)
+			   {
+			     return 0;
 			   }
 		       }
 		     if (PauseFlag == 1)
