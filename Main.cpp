@@ -14,17 +14,17 @@
 int game(SDL_Event e, SDL_Window *w, SDL_Renderer *r);
 
 int main() {
-  SDL_Event e;
-  SDL_Window *w = NULL;
-  SDL_Renderer *r = NULL;
-  int quit = 0;
+  SDL_Event e; // Event.
+  SDL_Window *w = NULL; // Window.
+  SDL_Renderer *r = NULL; // Renderer.
+  int quit = 0; // A variable that determines when to exit the program.
   int return_value = 0;
   int mousex_init = 0;
   int mousey_init = 0;
-  int *mousex = &mousex_init;
-  int *mousey = &mousey_init;
+  int *mousex = &mousex_init; // X-coordinate of the cursor.
+  int *mousey = &mousey_init; // Y-coordinate of the cursor.
   SDL_Init(SDL_INIT_VIDEO); // Initialize the SDL-window.
-  TTF_Init();
+  TTF_Init(); // Initialize TTF.
   w = SDL_CreateWindow("Space Invaders", // Title of the window.
 			    100, // X-coordinate of the upper left corner of the window.
 			    50, // Y-coordinate of the upper left corner of the window.
@@ -36,11 +36,12 @@ int main() {
     printf("Could not create window: %s\n", SDL_GetError());
     return 1;
   }
-  r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED);
-  SDL_SetRenderDrawColor(r, 0,0,0,255);
-  TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 140);
+  
+  r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED); // Create the renderer.
+  SDL_SetRenderDrawColor(r, 0,0,0,255); // Set the drawing color of the renderer to black.
+  TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 140); // Create font.
   TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 35);
-  SDL_Color Green = {0,255,0};
+  SDL_Color Green = {0,255,0}; // Define a color.
   SDL_Color White = {255,255,255};
   SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green);
   SDL_Surface *surfaceHeading2 = TTF_RenderText_Solid(HeadingFont, "Invaders", Green);
@@ -84,6 +85,7 @@ int main() {
   SDL_RenderCopy(r, ControlsButton, NULL, &Controls_Rect);
   SDL_RenderCopy(r, ExitButton, NULL, &Exit_Rect);
   SDL_RenderPresent(r);
+  
   while (quit == 0)
     {
       SDL_GetMouseState(mousex, mousey);
@@ -170,8 +172,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Color White = {255,255,255};
   SDL_Surface *surfaceButton1 = TTF_RenderText_Solid(ButtonFont, "Return to menu", White);
   SDL_Surface *surfaceButton2 = TTF_RenderText_Solid(ButtonFont, "Exit", White);
-  std::vector <SDL_Rect*> EnemyList; // A vector that contains pointers to enemies.
-  EnemyList = InitEnemyList(); // Create enemies and add them to a list. This function can be found in the file "Functions.cpp".
   std::string UserName = "Henry"; // This is the name of the player.
   int remainder = 0; // This is a counter that ensures that position of a bullet shot by the player is updated only once in every two iterations.
   int speed = 0; // This is the speed of the player.
@@ -188,6 +188,8 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int PauseFlag = 0;
   clock_t t;
   int CheckIfDestroyed = 1; // This variable checks whether there is a bullet shot by the player in the field or not. This is important because the player can shoot a new bullet only if the previous bullet has already been destroyed.
+  std::vector <SDL_Rect*> EnemyList; // A vector that contains pointers to enemies.
+  EnemyList = InitEnemyList(); // Create enemies and add them to a list. This function can be found in the file "Functions.cpp".
   
   Player player_1; // Create an object "player_1" of class "Player".
   SDL_Texture *PlayerShip = NULL; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
@@ -225,7 +227,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   ShipRect.h = h_player; // The height of the rectangle.
   for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy.
     {
-      EnemyList[j]->x = 10 + j*40 - j/10*10*40;
+      EnemyList[j]->x = 10 + j*45 - j/10*10*45;
       EnemyList[j]->y = 400 - h_enemy*(j/10) - j/10*5;
       EnemyList[j]->w = w_enemy;
       EnemyList[j]->h = h_enemy;
@@ -242,10 +244,18 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	if ((EnemyList[EnemyList.size()-1])->x >= *WindowWidth - w_enemy) // If the position of the enemy on the far right exceeds the screen width.
 	  {
 	    dir = 0;
+	    for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy.
+	      {
+		EnemyList[j]->y = EnemyList[j]->y + 10;
+	      }
 	  }
-	else if ((EnemyList[0])->x <= 0) // If the x-coordinate of the position of the enemy on the far right is less than 10.
+	else if ((EnemyList[0])->x <= 0) // If the x-coordinate of the position of the enemy on the far left is less than 10.
 	  {
 	    dir = 1;
+	    for (int j = 0; j < EnemyList.size(); ++j)
+	      {
+		EnemyList[j]->y = EnemyList[j]->y + 10;
+	      }
 	  }
 	for(int i = 0; i < EnemyList.size(); ++i) // Loop through all enemies.
 	  {
@@ -268,20 +278,33 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       }
     if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
       {
-	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-	SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
-	if (remainder % 2 == 0) // If the variable "remainder" is an even number, update the position of the bullet.
+	for(int j = 0; j < EnemyList.size(); ++j)
 	  {
-	    PlayerBullet->y = PlayerBullet->y - 1;
+	    if (SDL_HasIntersection(EnemyList[j], PlayerBullet) == SDL_TRUE)
+	      {
+		EnemyList.erase(EnemyList.begin()+j);
+		CheckIfDestroyed = 1;
+		delete(PlayerBullet);
+		remainder = 0;
+	      }
 	  }
-	remainder = remainder + 1;
-	SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-	if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
-	{
-	  CheckIfDestroyed = 1;
-	  delete(PlayerBullet);
-	  remainder = 0;
-	}
+	if (CheckIfDestroyed == 0)
+	  {
+	    SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+	    SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
+	    if (remainder % 2 == 0) // If the variable "remainder" is an even number, update the position of the bullet.
+	      {
+		PlayerBullet->y = PlayerBullet->y - 1;
+	      }
+	    remainder = remainder + 1;
+	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+	    if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
+	      {
+		CheckIfDestroyed = 1;
+		delete(PlayerBullet);
+		remainder = 0;
+	      }
+	  }
       }
     SDL_RenderPresent(renderer);
     if (SDL_PollEvent(&event)) // Poll for pending events
@@ -359,10 +382,26 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		       case SDL_MOUSEBUTTONUP:
 			 if (*mousex >= 10 && *mousex <= 340 && *mousey >= 5 && *mousey <= 105)
 			   {
+			     TTF_CloseFont(ButtonFont);
+			     SDL_FreeSurface(surfaceButton1);
+			     SDL_FreeSurface(surfaceButton2);
+			     SDL_DestroyTexture(Button1);
+			     SDL_DestroyTexture(Button2);
+			     SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
+			     SDL_DestroyTexture(EnemyAlien);
 			     return 1;
 			   }
 			 else if (*mousex >= 950 && *mousex <= 1070 && *mousey >= 5 && *mousey <= 105)
 			   {
+			     TTF_CloseFont(ButtonFont);
+			     SDL_FreeSurface(surfaceButton1);
+			     SDL_FreeSurface(surfaceButton2);
+			     SDL_DestroyTexture(Button1);
+			     SDL_DestroyTexture(Button2);
+			     SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
+			     SDL_DestroyTexture(EnemyAlien);
+			     SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
+			     SDL_DestroyWindow(window); // This destroys the window
 			     return 0;
 			   }
 		       }
@@ -377,6 +416,11 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	 }
       }
   }
+  TTF_CloseFont(ButtonFont);
+  SDL_FreeSurface(surfaceButton1);
+  SDL_FreeSurface(surfaceButton2);
+  SDL_DestroyTexture(Button1);
+  SDL_DestroyTexture(Button2);
   SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
   SDL_DestroyTexture(EnemyAlien);
   SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
