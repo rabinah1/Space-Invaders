@@ -183,7 +183,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   //Initialize variables and structures that are needed for the program.
   srand (static_cast <unsigned> (time(0)));
   float expDelay = 1.5;
-  float epsilon = -0.5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.5-(-0.5))));
+  float epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7))));
   float time_to_wait = expDelay + epsilon;
   int randomIndex = 0;
   unsigned int currentBulletTime = SDL_GetTicks();
@@ -214,6 +214,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int dir = 1; // This variable defines the direction to which the enemis move. Enemies can move to left or right.
   int PauseFlag = 0;
   int CheckIfDestroyed = 1; // This variable checks whether there is a bullet shot by the player in the field or not. This is important because the player can shoot a new bullet only if the previous bullet has already been destroyed.
+  int BulletsExist = 0;
   std::vector <SDL_Rect*> EnemyList; // A vector that contains pointers to enemies.
   std::vector <SDL_Rect*> BulletList; // A vector that contains bullets shot by the enemies.
   EnemyList = InitEnemyList(); // Create enemies and add them to a list. This function can be found in the file "Functions.cpp".
@@ -273,7 +274,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       {
 	lastTime = currentTime;
       }
-    if (SDL_GetTicks() - currentBulletTime > time_to_wait*1000)
+    if (SDL_GetTicks() - currentBulletTime > time_to_wait*1000 && EnemyList.size() != 0)
       {
 	currentBulletTime = SDL_GetTicks();
 	randomIndex =  0 + (rand() % static_cast<int>(EnemyList.size()-1 - 0 + 1));
@@ -283,7 +284,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	EnemyBullet->x = EnemyList[randomIndex]->x + 15;
 	EnemyBullet->y = EnemyList[randomIndex]->y + 30;
 	BulletList.push_back(EnemyBullet);
-	epsilon = -0.5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.5-(-0.5))));
+	epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7))));
 	time_to_wait = expDelay + epsilon;
       }
     SDL_RenderClear(renderer);
@@ -292,11 +293,29 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
 	SDL_RenderFillRect(renderer, BulletList[k]); // Paint the bullet white.
 	BulletList[k]->y = BulletList[k]->y + 10;
+	if (BulletList[k]->y > 800)
+	  {
+	    BulletList.erase(BulletList.begin() + k);
+	    delete(BulletList[k]);
+	  }
+	if (SDL_HasIntersection(BulletList[k], &ShipRect) == SDL_TRUE)
+	  {
+	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+	    return 1;
+	  }
       }
     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+    if (BulletList.size() != 0)
+      {
+	BulletsExist = 1;
+      }
+    else
+      {
+	BulletsExist = 0;
+      }
     SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height and width of the window.
     ShipRect.y = *WindowHeight - 45; // This keeps the player's spaceship in the bottom of the screen even if we resize the window.
-    if (currentEnemyTime - lastEnemyTime >= 1000)
+    if (currentEnemyTime - lastEnemyTime >= 1000 && EnemyList.size() != 0)
       {
 	lastEnemyTime = currentEnemyTime;
 	if ((EnemyList[EnemyList.size()-1])->x >= *WindowWidth - w_enemy) // If the position of the enemy on the far right exceeds the screen width.
@@ -327,7 +346,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	      }
 	  }
       }
-    //SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
     for (int j = 0; j < EnemyList.size(); ++j) // Loop through all the enemies.
       {
@@ -402,11 +420,15 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
 		     SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
 		     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-		     if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
+		   }
+		 if (BulletsExist == 1)
+		   {
+		     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
+		     for (int k = 0; k < BulletList.size(); ++k)
 		       {
-			 CheckIfDestroyed = 1;
-			 delete(PlayerBullet);
+			 SDL_RenderFillRect(renderer, BulletList[k]);
 		       }
+		     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 		   }
 		 SDL_RenderPresent(renderer);
 		 if (SDL_PollEvent(&event))
