@@ -39,3 +39,13 @@ int Player::Give_speed() // Return the speed of the player.
 {
   return Speed;
 }
+
+void Player::Reduce_lives()
+{
+  Lives = Lives - 1;
+}
+
+void Player::Increase_score()
+{
+  Score = Score + 50;
+}

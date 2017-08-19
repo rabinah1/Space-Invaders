@@ -13,6 +13,8 @@ class Player {
   void Set_score(int sc);
   void Set_name(std::string nm);
   void Set_speed(int sp);
+  void Reduce_lives();
+  void Increase_score();
   int Give_lives();
   int Give_score();
   int Give_speed();

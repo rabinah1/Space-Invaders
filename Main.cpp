@@ -7,6 +7,8 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <string>
+#include <sstream>
 #include "Player.h"
 #include "Functions.h"
 
@@ -109,7 +111,7 @@ int main() {
 	 case SDL_QUIT: // If the user clicks on the x-button in the top left corner
 	   quit = 1;
 
-	 case SDL_MOUSEBUTTONUP:
+	 case SDL_MOUSEBUTTONDOWN:
 	   if (*mousex >= 420 && *mousex <= 620 && *mousey >= 410 && *mousey <= 480) {
 	     return_value = game(e, w, r);
 	     if (return_value != 1)
@@ -176,10 +178,6 @@ int main() {
 }
 
 int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
-  // Choose some constant time interval, for example 2 seconds.
-  // Choose a random number within some interval, for example [-0.5; 0.5].
-  // Sum these to get the time after which some enemy shoots a bullet.
-  // Choose randomly an enemy that will shoot the bullet. You can do this by choosing a random integer and using it as the index of the vector EnemyList.
   //Initialize variables and structures that are needed for the program.
   srand (static_cast <unsigned> (time(0)));
   float expDelay = 1.5;
@@ -230,6 +228,14 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   player_1.Set_speed(12); // Set the speed of the player to be 12.
   speed = player_1.Give_speed();
   player_1.Set_name(UserName); // Set the name of the player.
+  std::stringstream score;
+  std::stringstream lives;
+  score << player_1.Give_score();
+  lives << player_1.Give_lives();
+  SDL_Surface *surfaceScore = TTF_RenderText_Solid(ButtonFont, score.str().c_str(), White);
+  SDL_Surface *surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
+  SDL_Surface *scoreTextSurface = TTF_RenderText_Solid(ButtonFont, "Score:", White);
+  SDL_Surface *livesTextSurface = TTF_RenderText_Solid(ButtonFont, "Lives:", White);
   SDL_Init(SDL_INIT_VIDEO); // Initialize the SDL-window.
   
   PlayerShip = IMG_LoadTexture(renderer, USER); // Load the image of the spaceship of the player.
@@ -240,8 +246,16 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color.
   SDL_Texture *Button1 = SDL_CreateTextureFromSurface(renderer, surfaceButton1);
   SDL_Texture *Button2 = SDL_CreateTextureFromSurface(renderer, surfaceButton2);
+  SDL_Texture *Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
+  SDL_Texture *Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives);
+  SDL_Texture *ScoreText = SDL_CreateTextureFromSurface(renderer, scoreTextSurface);
+  SDL_Texture *LivesText = SDL_CreateTextureFromSurface(renderer, livesTextSurface);
   SDL_Rect Button1Rect;
   SDL_Rect Button2Rect;
+  SDL_Rect scoreRect;
+  SDL_Rect livesRect;
+  SDL_Rect scoreTextRect;
+  SDL_Rect livesTextRect;
   Button1Rect.x = 10;
   Button1Rect.y = 5;
   Button1Rect.w = 330;
@@ -250,6 +264,22 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   Button2Rect.y = 5;
   Button2Rect.w = 120;
   Button2Rect.h = 100;
+  scoreRect.x = 1000;
+  scoreRect.y = 15;
+  scoreRect.w = 60;
+  scoreRect.h = 50;
+  livesRect.x = 1000;
+  livesRect.y = 70;
+  livesRect.w = 50;
+  livesRect.h = 50;
+  scoreTextRect.x = 900;
+  scoreTextRect.y = 15;
+  scoreTextRect.w = 90;
+  scoreTextRect.h = 50;
+  livesTextRect.x = 900;
+  livesTextRect.y = 70;
+  livesTextRect.w = 90;
+  livesTextRect.h = 50;
   ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner.
   ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner.
   ShipRect.w = w_player; // The width of the rectangle.
@@ -288,20 +318,49 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	time_to_wait = expDelay + epsilon;
       }
     SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, Score, NULL, &scoreRect);
+    SDL_RenderCopy(renderer, Lives, NULL, &livesRect);
+    SDL_RenderCopy(renderer, ScoreText, NULL, &scoreTextRect);
+    SDL_RenderCopy(renderer, LivesText, NULL, &livesTextRect);
     for (int k = 0; k < BulletList.size(); ++k)
       {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
 	SDL_RenderFillRect(renderer, BulletList[k]); // Paint the bullet white.
-	BulletList[k]->y = BulletList[k]->y + 10;
+	BulletList[k]->y = BulletList[k]->y + 7;
 	if (BulletList[k]->y > 800)
 	  {
-	    BulletList.erase(BulletList.begin() + k);
 	    delete(BulletList[k]);
+	    BulletList.erase(BulletList.begin() + k);
 	  }
 	if (SDL_HasIntersection(BulletList[k], &ShipRect) == SDL_TRUE)
 	  {
+	    delete(BulletList[k]);
+	    BulletList.erase(BulletList.begin() + k);
 	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-	    return 1;
+	    player_1.Reduce_lives();
+	    lives.str("");
+	    lives << player_1.Give_lives();
+	    surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
+	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives);
+	    if (player_1.Give_lives() < 0)
+	      {
+		TTF_CloseFont(ButtonFont);
+		SDL_FreeSurface(surfaceButton1);
+		SDL_FreeSurface(surfaceButton2);
+		SDL_FreeSurface(surfaceScore);
+		SDL_FreeSurface(surfaceLives);
+		SDL_FreeSurface(scoreTextSurface);
+		SDL_FreeSurface(livesTextSurface);
+		SDL_DestroyTexture(Button1);
+		SDL_DestroyTexture(Button2);
+		SDL_DestroyTexture(Score);
+		SDL_DestroyTexture(Lives);
+		SDL_DestroyTexture(ScoreText);
+		SDL_DestroyTexture(LivesText);
+	        SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
+		SDL_DestroyTexture(EnemyAlien);
+		return 1;
+	      }
 	  }
       }
     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
@@ -359,6 +418,11 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	      {
 		EnemyList.erase(EnemyList.begin()+j);
 		CheckIfDestroyed = 1;
+		player_1.Increase_score();
+		score.str("");
+		score << player_1.Give_score();
+		surfaceScore = TTF_RenderText_Solid(ButtonFont, score.str().c_str(), White);
+		Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
 		delete(PlayerBullet);
 	      }
 	  }
@@ -451,14 +515,22 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			     break;
 			   }
 
-		       case SDL_MOUSEBUTTONUP:
+		       case SDL_MOUSEBUTTONDOWN:
 			 if (*mousex >= 10 && *mousex <= 340 && *mousey >= 5 && *mousey <= 105)
 			   {
 			     TTF_CloseFont(ButtonFont);
 			     SDL_FreeSurface(surfaceButton1);
 			     SDL_FreeSurface(surfaceButton2);
+			     SDL_FreeSurface(surfaceScore);
+			     SDL_FreeSurface(surfaceLives);
+			     SDL_FreeSurface(scoreTextSurface);
+			     SDL_FreeSurface(livesTextSurface);
 			     SDL_DestroyTexture(Button1);
 			     SDL_DestroyTexture(Button2);
+			     SDL_DestroyTexture(Score);
+			     SDL_DestroyTexture(Lives);
+			     SDL_DestroyTexture(ScoreText);
+			     SDL_DestroyTexture(LivesText);
 			     SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
 			     SDL_DestroyTexture(EnemyAlien);
 			     return 1;
@@ -468,8 +540,16 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			     TTF_CloseFont(ButtonFont);
 			     SDL_FreeSurface(surfaceButton1);
 			     SDL_FreeSurface(surfaceButton2);
+			     SDL_FreeSurface(surfaceScore);
+			     SDL_FreeSurface(surfaceLives);
+			     SDL_FreeSurface(scoreTextSurface);
+			     SDL_FreeSurface(livesTextSurface);
 			     SDL_DestroyTexture(Button1);
 			     SDL_DestroyTexture(Button2);
+			     SDL_DestroyTexture(Score);
+			     SDL_DestroyTexture(Lives);
+			     SDL_DestroyTexture(ScoreText);
+			     SDL_DestroyTexture(LivesText);
 			     SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
 			     SDL_DestroyTexture(EnemyAlien);
 			     SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
@@ -491,8 +571,16 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   TTF_CloseFont(ButtonFont);
   SDL_FreeSurface(surfaceButton1);
   SDL_FreeSurface(surfaceButton2);
+  SDL_FreeSurface(surfaceScore);
+  SDL_FreeSurface(surfaceLives);
+  SDL_FreeSurface(scoreTextSurface);
+  SDL_FreeSurface(livesTextSurface);
   SDL_DestroyTexture(Button1);
   SDL_DestroyTexture(Button2);
+  SDL_DestroyTexture(Score);
+  SDL_DestroyTexture(Lives);
+  SDL_DestroyTexture(ScoreText);
+  SDL_DestroyTexture(LivesText);
   SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
   SDL_DestroyTexture(EnemyAlien);
   SDL_DestroyRenderer(renderer); // Destroy the rendering context for a window and free associated textures.
