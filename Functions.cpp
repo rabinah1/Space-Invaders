@@ -2,7 +2,10 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#include "Player.h"
 #include <stdio.h>
+#include <string>
+#include <sstream>
 
 std::vector <SDL_Rect*> InitEnemyList()
 {
@@ -110,6 +113,86 @@ std::vector <SDL_Rect*> InitEnemyList()
   return List;
 }
 
+int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
+{
+  int mousex_init = 0;
+  int mousey_init = 0;
+  int *mousex = &mousex_init;
+  int *mousey = &mousey_init;
+  int quit = 0;
+  TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 80);
+  std::stringstream score;
+  score << player_1.Give_score();
+  SDL_SetRenderDrawColor(r, 0,0,0,255);
+  SDL_RenderClear(r);
+  SDL_Color White = {255,255,255};
+  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "Game over", White);
+  SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "Your score:", White);
+  SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "Menu", White);
+  SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "Exit", White);
+  SDL_Surface *surfaceScore = TTF_RenderText_Solid(Font, score.str().c_str(), White);
+  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1);
+  SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
+  SDL_Texture *texture3 = SDL_CreateTextureFromSurface(r, surface3);
+  SDL_Texture *texture4 = SDL_CreateTextureFromSurface(r, surface4);
+  SDL_Texture *Score = SDL_CreateTextureFromSurface(r, surfaceScore);
+  SDL_Rect Rect1;
+  SDL_Rect Rect2;
+  SDL_Rect Rect3;
+  SDL_Rect Rect4;
+  SDL_Rect Rect5;
+  Rect1.x = 350;
+  Rect1.y = 170;
+  Rect1.w = 400;
+  Rect1.h = 150;
+  Rect2.x = 300;
+  Rect2.y = 350;
+  Rect2.w = 400;
+  Rect2.h = 150;
+  Rect3.x = 715;
+  Rect3.y = 350;
+  Rect3.w = 140;
+  Rect3.h = 150;
+  Rect4.x = 80;
+  Rect4.y = 620;
+  Rect4.w = 200;
+  Rect4.h = 150;
+  Rect5.x = 825;
+  Rect5.y = 620;
+  Rect5.w = 200;
+  Rect5.h = 150;
+  SDL_RenderCopy(r, texture1, NULL, &Rect1);
+  SDL_RenderCopy(r, texture2, NULL, &Rect2);
+  SDL_RenderCopy(r, Score, NULL, &Rect3);
+  SDL_RenderCopy(r, texture3, NULL, &Rect4);
+  SDL_RenderCopy(r, texture4, NULL, &Rect5);
+  SDL_RenderPresent(r);
+  while(quit == 0)
+    {
+      SDL_GetMouseState(mousex, mousey);
+      if (SDL_PollEvent(&e))
+	{
+	  switch(e.type)
+	    {
+	    case SDL_QUIT:
+	      quit = 1;
+	      break;
+	    }
+	}
+    }
+  SDL_FreeSurface(surface1);
+  SDL_FreeSurface(surface2);
+  SDL_FreeSurface(surfaceScore);
+  SDL_FreeSurface(surface3);
+  SDL_FreeSurface(surface4);
+  SDL_DestroyTexture(texture1);
+  SDL_DestroyTexture(texture2);
+  SDL_DestroyTexture(Score);
+  SDL_DestroyTexture(texture3);
+  SDL_DestroyTexture(texture4);
+  TTF_CloseFont(Font);
+  return 0;
+}
 
 int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
 {

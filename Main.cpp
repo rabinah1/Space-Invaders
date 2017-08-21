@@ -359,6 +359,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		SDL_DestroyTexture(LivesText);
 	        SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
 		SDL_DestroyTexture(EnemyAlien);
+		GameOverWindow(event, window, renderer, player_1);
 		return 1;
 	      }
 	  }
