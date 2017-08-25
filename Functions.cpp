@@ -145,11 +145,11 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   Rect1.y = 170;
   Rect1.w = 400;
   Rect1.h = 150;
-  Rect2.x = 300;
+  Rect2.x = 290;
   Rect2.y = 350;
   Rect2.w = 400;
   Rect2.h = 150;
-  Rect3.x = 715;
+  Rect3.x = 710;
   Rect3.y = 350;
   Rect3.w = 140;
   Rect3.h = 150;
@@ -177,6 +177,38 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
 	    case SDL_QUIT:
 	      quit = 1;
 	      break;
+
+	    case SDL_MOUSEBUTTONDOWN:
+	      if (*mousex >= 80 && *mousex <= 280 && *mousey >= 620 && *mousey <= 770) // Press menu
+		{
+		  SDL_FreeSurface(surface1);
+		  SDL_FreeSurface(surface2);
+		  SDL_FreeSurface(surfaceScore);
+		  SDL_FreeSurface(surface3);
+		  SDL_FreeSurface(surface4);
+		  SDL_DestroyTexture(texture1);
+		  SDL_DestroyTexture(texture2);
+		  SDL_DestroyTexture(Score);
+		  SDL_DestroyTexture(texture3);
+		  SDL_DestroyTexture(texture4);
+		  TTF_CloseFont(Font);
+		  return 0;
+		}
+	      else if (*mousex >= 825 && *mousex <= 1025 && *mousey >= 620 && *mousey <= 770) // Press exit
+		{
+		  SDL_FreeSurface(surface1);
+		  SDL_FreeSurface(surface2);
+		  SDL_FreeSurface(surfaceScore);
+		  SDL_FreeSurface(surface3);
+		  SDL_FreeSurface(surface4);
+		  SDL_DestroyTexture(texture1);
+		  SDL_DestroyTexture(texture2);
+		  SDL_DestroyTexture(Score);
+		  SDL_DestroyTexture(texture3);
+		  SDL_DestroyTexture(texture4);
+		  TTF_CloseFont(Font);
+		  return 1;
+		}
 	    }
 	}
     }
@@ -191,7 +223,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   SDL_DestroyTexture(texture3);
   SDL_DestroyTexture(texture4);
   TTF_CloseFont(Font);
-  return 0;
+  return 1;
 }
 
 int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
@@ -257,7 +289,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
 	    case SDL_QUIT:
 	      exit = 1;
 	      break;
-	    case SDL_MOUSEBUTTONUP:
+	    case SDL_MOUSEBUTTONDOWN:
 	      if (*mousex >= 395 && *mousex <= 625 && *mousey >= 660 && *mousey <= 760)
 		{
 		  exit = 1;

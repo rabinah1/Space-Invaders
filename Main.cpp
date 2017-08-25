@@ -179,6 +179,9 @@ int main() {
 
 int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   //Initialize variables and structures that are needed for the program.
+  int dist_left = 2000;
+  int dist_right = 2000;
+  int ret = 0;
   srand (static_cast <unsigned> (time(0)));
   float expDelay = 1.5;
   float epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7))));
@@ -200,6 +203,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Surface *surfaceButton2 = TTF_RenderText_Solid(ButtonFont, "Exit", White);
   std::string UserName = "Henry"; // This is the name of the player.
   int speed = 0; // This is the speed of the player.
+  int EnemyAmount = 0;
   int w_player = 0; // The width of the image of the player's spaceship.
   int h_player = 0; // The height of the image of the player's spaceship.
   int w_enemy = 0; // The width of the image of an enemy.
@@ -225,9 +229,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Rect *EnemyBullet = NULL;
   player_1.Set_lives(3); // Set the lives of the player to be 3.
   player_1.Set_score(0); // Set the score of the player to be 0.
-  player_1.Set_speed(12); // Set the speed of the player to be 12.
-  speed = player_1.Give_speed();
-  player_1.Set_name(UserName); // Set the name of the player.
+  speed = 12;
   std::stringstream score;
   std::stringstream lives;
   score << player_1.Give_score();
@@ -294,6 +296,40 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
     }
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call.
   while (quit == 0) { // Start the main loop of the game.
+    if (EnemyList.size() > 40 && EnemyList.size() <= 50)
+      {
+	EnemyAmount = 0;
+      }
+    else if (EnemyList.size() > 30 && EnemyList.size() <= 40)
+      {
+	EnemyAmount = 1;
+      }
+    else if (EnemyList.size() > 20 && EnemyList.size() <= 30)
+      {
+	EnemyAmount = 2;
+      }
+    else if (EnemyList.size() > 10 && EnemyList.size() <= 20)
+      {
+	EnemyAmount = 3;
+      }
+    else if (EnemyList.size() > 0 && EnemyList.size() <= 10)
+      {
+	EnemyAmount = 4;
+      }
+    if (EnemyList.size() == 0)
+      {
+	EnemyList = InitEnemyList();
+	EnemyAmount = 0;
+	for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy.
+	  {
+	    EnemyList[j]->x = 10 + j*45 - j/10*10*45;
+	    EnemyList[j]->y = 400 - h_enemy*(j/10) - j/10*5;
+	    EnemyList[j]->w = w_enemy;
+	    EnemyList[j]->h = h_enemy;
+	    SDL_RenderCopy(renderer, EnemyAlien, NULL, EnemyList[j]);
+	  }
+	dir = 1;
+      }
     currentTime = SDL_GetTicks();
     currentEnemyTime = SDL_GetTicks();
     if (currentTime - lastTime < 17)
@@ -344,23 +380,39 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives);
 	    if (player_1.Give_lives() < 0)
 	      {
-		TTF_CloseFont(ButtonFont);
-		SDL_FreeSurface(surfaceButton1);
-		SDL_FreeSurface(surfaceButton2);
-		SDL_FreeSurface(surfaceScore);
-		SDL_FreeSurface(surfaceLives);
-		SDL_FreeSurface(scoreTextSurface);
-		SDL_FreeSurface(livesTextSurface);
-		SDL_DestroyTexture(Button1);
-		SDL_DestroyTexture(Button2);
-		SDL_DestroyTexture(Score);
-		SDL_DestroyTexture(Lives);
-		SDL_DestroyTexture(ScoreText);
-		SDL_DestroyTexture(LivesText);
-	        SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
-		SDL_DestroyTexture(EnemyAlien);
-		GameOverWindow(event, window, renderer, player_1);
-		return 1;
+		ret = GameOverWindow(event, window, renderer, player_1);
+		if (ret == 1) // Exit was pressed
+		  {
+		    quit = 1;
+		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy.
+		      {
+			delete(EnemyList[j]);
+		      }
+		    break;
+		  }
+		else
+		  {
+		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy.
+		      {
+			delete(EnemyList[j]);
+		      }
+		    TTF_CloseFont(ButtonFont);
+		    SDL_FreeSurface(surfaceButton1);
+		    SDL_FreeSurface(surfaceButton2);
+		    SDL_FreeSurface(surfaceScore);
+		    SDL_FreeSurface(surfaceLives);
+		    SDL_FreeSurface(scoreTextSurface);
+		    SDL_FreeSurface(livesTextSurface);
+		    SDL_DestroyTexture(Button1);
+		    SDL_DestroyTexture(Button2);
+		    SDL_DestroyTexture(Score);
+		    SDL_DestroyTexture(Lives);
+		    SDL_DestroyTexture(ScoreText);
+		    SDL_DestroyTexture(LivesText);
+		    SDL_DestroyTexture(PlayerShip); // Destroy the img-texture.
+		    SDL_DestroyTexture(EnemyAlien);
+		    return 1;
+		  }
 	      }
 	  }
       }
@@ -375,34 +427,47 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       }
     SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height and width of the window.
     ShipRect.y = *WindowHeight - 45; // This keeps the player's spaceship in the bottom of the screen even if we resize the window.
-    if (currentEnemyTime - lastEnemyTime >= 1000 && EnemyList.size() != 0)
+    if (currentEnemyTime - lastEnemyTime >= (1000 - EnemyAmount*150) && EnemyList.size() != 0)
       {
 	lastEnemyTime = currentEnemyTime;
-	if ((EnemyList[EnemyList.size()-1])->x >= *WindowWidth - w_enemy) // If the position of the enemy on the far right exceeds the screen width.
+	dist_right = 2000;
+	dist_left = 2000;
+	for (int j = 0; j < EnemyList.size(); ++j)
+	  {
+	    if (*WindowWidth - (EnemyList[j]->x + w_enemy) <= dist_right)
+	      {
+		dist_right = *WindowWidth - (EnemyList[j]->x + w_enemy);
+	      }
+	    if (EnemyList[j]->x <= dist_left)
+	      {
+		dist_left = EnemyList[j]->x;
+	      }
+	  }
+	if (dist_right <= 0) // If the position of the enemy on the far right exceeds the screen width.
 	  {
 	    dir = 0;
 	    for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy.
 	      {
-		EnemyList[j]->y = EnemyList[j]->y + 10;
+		EnemyList[j]->y = EnemyList[j]->y + 30;
 	      }
 	  }
-	else if ((EnemyList[0])->x <= 0) // If the x-coordinate of the position of the enemy on the far left is less than 10.
+	else if (dist_left <= 0) // If the x-coordinate of the position of the enemy on the far left is less than 0.
 	  {
 	    dir = 1;
 	    for (int j = 0; j < EnemyList.size(); ++j)
 	      {
-		EnemyList[j]->y = EnemyList[j]->y + 10;
+		EnemyList[j]->y = EnemyList[j]->y + 30;
 	      }
 	  }
 	for(int i = 0; i < EnemyList.size(); ++i) // Loop through all enemies.
 	  {
 	    if (dir == 0)
 	      {
-		(EnemyList[i])->x = (EnemyList[i])->x - 15; // Move an enemy to the left.
+		(EnemyList[i])->x = (EnemyList[i])->x - 30; // Move an enemy to the left.
 	      }
 	    else
 	      {
-		(EnemyList[i])->x = (EnemyList[i])->x + 15; // Move an enemy to the right.
+		(EnemyList[i])->x = (EnemyList[i])->x + 30; // Move an enemy to the right.
 	      }
 	  }
       }
