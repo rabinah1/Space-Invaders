@@ -17,13 +17,13 @@
 
 int game(SDL_Event e, SDL_Window *w, SDL_Renderer *r);
 
-int main() {
-  unsigned int currentTime = 0;
+int main() { // Main-function runs the menu-screen of the game
+  unsigned int currentTime = 0; // Variables currentTime and lastTime are used to set the fps of the game approximately to 60
   unsigned int lastTime = 0;
-  SDL_Event e; // Event.
-  SDL_Window *w = NULL; // Window.
-  SDL_Renderer *r = NULL; // Renderer.
-  int quit = 0; // A variable that determines when to exit the program.
+  SDL_Event e; // A union that contains structures for different event types
+  SDL_Window *w = NULL; // This is the application window
+  SDL_Renderer *r = NULL; // This is the renderer that is used for drawing
+  int quit = 0; // A variable that determines when to exit the program
   int return_value = 0;
   int mousex_init = 0;
   int mousey_init = 0;
@@ -32,11 +32,11 @@ int main() {
   SDL_Init(SDL_INIT_VIDEO); // Initialize the SDL-window.
   TTF_Init(); // Initialize TTF.
   w = SDL_CreateWindow("Space Invaders", // Title of the window.
-			    100, // X-coordinate of the upper left corner of the window.
-			    50, // Y-coordinate of the upper left corner of the window.
+			    350, // X-coordinate of the upper left corner of the window.
+			    130, // Y-coordinate of the upper left corner of the window.
 			    1100, // Size of the window in x-direction.
 			    800, // Size of the window in y-direction.
-			    SDL_WINDOW_OPENGL/* | SDL_WINDOW_RESIZABLE*/ // In here we can add different flags. Syntax for multiple flags is: flag1 | flag2 | flag3...
+			    SDL_WINDOW_OPENGL // In here we can add different flags. Syntax for multiple flags is: flag1 | flag2 | flag3...
 			    );
   if (w == NULL) { // If the creation of the window was not succesfull
     printf("Could not create window: %s\n", SDL_GetError());
@@ -49,25 +49,25 @@ int main() {
   TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 35);
   SDL_Color Green = {0,255,0}; // Define a color.
   SDL_Color White = {255,255,255};
-  SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green);
+  SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green); // This is a surface that contains a text "Space"
   SDL_Surface *surfaceHeading2 = TTF_RenderText_Solid(HeadingFont, "Invaders", Green);
   SDL_Surface *surfaceStart = TTF_RenderText_Solid(ButtonFont, "Start game", White);
   SDL_Surface *surfaceControls = TTF_RenderText_Solid(ButtonFont, "Controls", White);
   SDL_Surface *surfaceExit = TTF_RenderText_Solid(ButtonFont, "Exit", White);
-  SDL_Texture *Heading1 = SDL_CreateTextureFromSurface(r, surfaceHeading1);
+  SDL_Texture *Heading1 = SDL_CreateTextureFromSurface(r, surfaceHeading1); // Here we create a texture from a surface
   SDL_Texture *Heading2 = SDL_CreateTextureFromSurface(r, surfaceHeading2);
   SDL_Texture *StartButton = SDL_CreateTextureFromSurface(r, surfaceStart);
   SDL_Texture *ControlsButton = SDL_CreateTextureFromSurface(r, surfaceControls);
   SDL_Texture *ExitButton = SDL_CreateTextureFromSurface(r, surfaceExit);
-  SDL_Rect Heading1_Rect;
+  SDL_Rect Heading1_Rect; // A structure that contains a definition of a rectangle
   SDL_Rect Heading2_Rect;
   SDL_Rect Start_Rect;
   SDL_Rect Controls_Rect;
   SDL_Rect Exit_Rect;
-  Heading1_Rect.x = 380;
-  Heading1_Rect.y = 80;
-  Heading1_Rect.w = 300;
-  Heading1_Rect.h = 170;
+  Heading1_Rect.x = 380; // The x-coordinate of a rectangle
+  Heading1_Rect.y = 80; // The y-cordinate of a rectangle
+  Heading1_Rect.w = 300; // The width of a rectangle
+  Heading1_Rect.h = 170; // The height of a rectangle
   Heading2_Rect.x = 340;
   Heading2_Rect.y = 230;
   Heading2_Rect.w = 400;
@@ -84,18 +84,18 @@ int main() {
   Exit_Rect.y = 630;
   Exit_Rect.w = 100;
   Exit_Rect.h = 70;
-  SDL_RenderClear(r);
-  SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect);
+  SDL_RenderClear(r); // Clear the window
+  SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect); // Copy a created texture into a rectangle
   SDL_RenderCopy(r, Heading2, NULL, &Heading2_Rect);
   SDL_RenderCopy(r, StartButton, NULL, &Start_Rect);
   SDL_RenderCopy(r, ControlsButton, NULL, &Controls_Rect);
   SDL_RenderCopy(r, ExitButton, NULL, &Exit_Rect);
-  SDL_RenderPresent(r);
+  SDL_RenderPresent(r); // update the screen with any rendering performed since the previous call
   
   while (quit == 0)
     {
-      currentTime = SDL_GetTicks();
-      if (currentTime - lastTime < 17)
+      currentTime = SDL_GetTicks(); // SDL_GetTicks() returns the time elapsed since the initialization of SDL-library in milliseconds
+      if (currentTime - lastTime < 17) // 17 milliseconds results in approximately 60 fps
 	{
 	  continue;
 	}
@@ -103,7 +103,7 @@ int main() {
 	{
 	  lastTime = currentTime;
 	}
-      SDL_GetMouseState(mousex, mousey);
+      SDL_GetMouseState(mousex, mousey); // Get the x- ja y-coordinates of the mouse
       if (SDL_PollEvent(&e)) // Poll for pending events
       {
 	switch(e.type)
@@ -111,22 +111,22 @@ int main() {
 	 case SDL_QUIT: // If the user clicks on the x-button in the top left corner
 	   quit = 1;
 
-	 case SDL_MOUSEBUTTONDOWN:
-	   if (*mousex >= 420 && *mousex <= 620 && *mousey >= 410 && *mousey <= 480) {
-	     return_value = game(e, w, r);
+	 case SDL_MOUSEBUTTONDOWN: // The user clicks the mouse button
+	   if (*mousex >= 420 && *mousex <= 620 && *mousey >= 410 && *mousey <= 480) { // The user clicks on the "Start game"-button in the menu-screen
+	     return_value = game(e, w, r); // Call the game-function to start the game
 	     if (return_value != 1)
 	       {
-		 SDL_FreeSurface(surfaceHeading1);
+		 SDL_FreeSurface(surfaceHeading1); // Free the surface given as parameter
 		 SDL_FreeSurface(surfaceHeading2);
 		 SDL_FreeSurface(surfaceStart);
 		 SDL_FreeSurface(surfaceControls);
 		 SDL_FreeSurface(surfaceExit);
-		 SDL_DestroyTexture(Heading1);
+		 SDL_DestroyTexture(Heading1); // Destroy the texture given as parameter
 		 SDL_DestroyTexture(Heading2);
 		 SDL_DestroyTexture(StartButton);
 		 SDL_DestroyTexture(ControlsButton);
 		 SDL_DestroyTexture(ExitButton);
-		 TTF_CloseFont(HeadingFont);
+		 TTF_CloseFont(HeadingFont); // Close the font given as parameter
 		 TTF_CloseFont(ButtonFont);
 		 return 0;
 	       }
@@ -141,13 +141,13 @@ int main() {
 		 SDL_RenderPresent(r);
 	       }
 	   }
-	   else if (*mousex >= 465 && *mousex <= 565 && *mousey >= 630 && *mousey <= 700)
+	   else if (*mousex >= 465 && *mousex <= 565 && *mousey >= 630 && *mousey <= 700) // The user clicks on the "Exit"-button in the menu-screen
 	     {
 	       quit = 1;
 	     }
-	   else if (*mousex >= 420 && *mousex <= 620 && *mousey >= 520 && *mousey <= 590)
+	   else if (*mousex >= 420 && *mousex <= 620 && *mousey >= 520 && *mousey <= 590) // The user clicks on the "Controls"-button in the menu-screen
 	     {
-	       GuideWindow(e, w, r);
+	       GuideWindow(e, w, r); // Go to a function that opens a window that contains instructions for the game
 	       SDL_RenderClear(r);
 	       SDL_RenderCopy(r, Heading1, NULL, &Heading1_Rect);
 	       SDL_RenderCopy(r, Heading2, NULL, &Heading2_Rect);
@@ -182,9 +182,9 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int dist_left = 2000;
   int dist_right = 2000;
   int ret = 0;
-  srand (static_cast <unsigned> (time(0)));
+  srand (static_cast <unsigned> (time(0))); // Seed the rand()-function
   float expDelay = 1.5;
-  float epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7))));
+  float epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7)))); // Select a random number between -0.7 and 0.7
   float time_to_wait = expDelay + epsilon;
   int randomIndex = 0;
   unsigned int currentBulletTime = SDL_GetTicks();
@@ -201,8 +201,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Color White = {255,255,255};
   SDL_Surface *surfaceButton1 = TTF_RenderText_Solid(ButtonFont, "Return to menu", White);
   SDL_Surface *surfaceButton2 = TTF_RenderText_Solid(ButtonFont, "Exit", White);
-  std::string UserName = "Henry"; // This is the name of the player.
-  int speed = 0; // This is the speed of the player.
+  int speed = 12; // This is the speed of the player
   int EnemyAmount = 0;
   int w_player = 0; // The width of the image of the player's spaceship.
   int h_player = 0; // The height of the image of the player's spaceship.
@@ -219,7 +218,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int BulletsExist = 0;
   std::vector <SDL_Rect*> EnemyList; // A vector that contains pointers to enemies.
   std::vector <SDL_Rect*> BulletList; // A vector that contains bullets shot by the enemies.
-  EnemyList = InitEnemyList(); // Create enemies and add them to a list. This function can be found in the file "Functions.cpp".
+  EnemyList = InitEnemyList(); // Create enemies and add them to a vector. This function can be found in the file "Functions.cpp".
   
   Player player_1; // Create an object "player_1" of class "Player".
   SDL_Texture *PlayerShip = NULL; // A structure that contains representation of pixel data, in this case the image of the player's spaceship.
@@ -229,7 +228,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Rect *EnemyBullet = NULL;
   player_1.Set_lives(3); // Set the lives of the player to be 3.
   player_1.Set_score(0); // Set the score of the player to be 0.
-  speed = 12;
   std::stringstream score;
   std::stringstream lives;
   score << player_1.Give_score();
@@ -238,14 +236,12 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Surface *surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
   SDL_Surface *scoreTextSurface = TTF_RenderText_Solid(ButtonFont, "Score:", White);
   SDL_Surface *livesTextSurface = TTF_RenderText_Solid(ButtonFont, "Lives:", White);
-  SDL_Init(SDL_INIT_VIDEO); // Initialize the SDL-window.
-  
   PlayerShip = IMG_LoadTexture(renderer, USER); // Load the image of the spaceship of the player.
   EnemyAlien = IMG_LoadTexture(renderer, ENEMY);
   SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship.
   SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy);
   SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value.
-  SDL_RenderClear(renderer); // This function is used to clear the current rendering target with the drawing color.
+  SDL_RenderClear(renderer);
   SDL_Texture *Button1 = SDL_CreateTextureFromSurface(renderer, surfaceButton1);
   SDL_Texture *Button2 = SDL_CreateTextureFromSurface(renderer, surfaceButton2);
   SDL_Texture *Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
@@ -298,7 +294,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   while (quit == 0) { // Start the main loop of the game.
     if (EnemyList.size() > 40 && EnemyList.size() <= 50)
       {
-	EnemyAmount = 0;
+	EnemyAmount = 0; // EnemyAmount is a variable that controls, how quickly the enemies move
       }
     else if (EnemyList.size() > 30 && EnemyList.size() <= 40)
       {
@@ -316,7 +312,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       {
 	EnemyAmount = 4;
       }
-    if (EnemyList.size() == 0)
+    if (EnemyList.size() == 0) // If all the enemies are destroyed
       {
 	EnemyList = InitEnemyList();
 	EnemyAmount = 0;
