@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 
-std::vector <SDL_Rect*> InitEnemyList()
+std::vector <SDL_Rect*> InitEnemyList() // Create 50 enemies and add them to a vector
 {
   std::vector <SDL_Rect*> List;
   SDL_Rect *Enemy1 = new SDL_Rect;
@@ -113,38 +113,38 @@ std::vector <SDL_Rect*> InitEnemyList()
   return List;
 }
 
-int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
+int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1) // We will enter this function when the player loses the game. This function will open a window that tells the player that the game has ended.
 {
   int mousex_init = 0;
   int mousey_init = 0;
-  int *mousex = &mousex_init;
-  int *mousey = &mousey_init;
+  int *mousex = &mousex_init; // X-coordinate of the mouse
+  int *mousey = &mousey_init; // Y-coordinate of the mouse
   int quit = 0;
   TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 80);
   std::stringstream score;
   score << player_1.Give_score();
-  SDL_SetRenderDrawColor(r, 0,0,0,255);
+  SDL_SetRenderDrawColor(r, 0,0,0,255); // Set the render draw color to black
   SDL_RenderClear(r);
   SDL_Color White = {255,255,255};
-  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "Game over", White);
+  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "Game over", White); // Create a surface that contains some text
   SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "Your score:", White);
   SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "Menu", White);
   SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "Exit", White);
   SDL_Surface *surfaceScore = TTF_RenderText_Solid(Font, score.str().c_str(), White);
-  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1);
+  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1); // Create texture from a surface
   SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
   SDL_Texture *texture3 = SDL_CreateTextureFromSurface(r, surface3);
   SDL_Texture *texture4 = SDL_CreateTextureFromSurface(r, surface4);
   SDL_Texture *Score = SDL_CreateTextureFromSurface(r, surfaceScore);
-  SDL_Rect Rect1;
+  SDL_Rect Rect1; // Define rectangle
   SDL_Rect Rect2;
   SDL_Rect Rect3;
   SDL_Rect Rect4;
   SDL_Rect Rect5;
-  Rect1.x = 350;
-  Rect1.y = 170;
-  Rect1.w = 400;
-  Rect1.h = 150;
+  Rect1.x = 350; // The x-coordinate of the top left corner of a rectangle
+  Rect1.y = 170; // The y-coordinate of the top left corner of a rectangle
+  Rect1.w = 400; // The width of a rectangle
+  Rect1.h = 150; // The height of a rectangle
   Rect2.x = 290;
   Rect2.y = 350;
   Rect2.w = 400;
@@ -161,7 +161,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   Rect5.y = 620;
   Rect5.w = 200;
   Rect5.h = 150;
-  SDL_RenderCopy(r, texture1, NULL, &Rect1);
+  SDL_RenderCopy(r, texture1, NULL, &Rect1); // Copy a texture on top of a rectangle
   SDL_RenderCopy(r, texture2, NULL, &Rect2);
   SDL_RenderCopy(r, Score, NULL, &Rect3);
   SDL_RenderCopy(r, texture3, NULL, &Rect4);
@@ -169,17 +169,17 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   SDL_RenderPresent(r);
   while(quit == 0)
     {
-      SDL_GetMouseState(mousex, mousey);
-      if (SDL_PollEvent(&e))
+      SDL_GetMouseState(mousex, mousey); // Get the x- and y-coordinates of the mouse
+      if (SDL_PollEvent(&e)) // Poll for pending events
 	{
 	  switch(e.type)
 	    {
-	    case SDL_QUIT:
+	    case SDL_QUIT: // If the player clicks on the x-button on the top left corner of the screen
 	      quit = 1;
 	      break;
 
 	    case SDL_MOUSEBUTTONDOWN:
-	      if (*mousex >= 80 && *mousex <= 280 && *mousey >= 620 && *mousey <= 770) // Press menu
+	      if (*mousex >= 80 && *mousex <= 280 && *mousey >= 620 && *mousey <= 770) // If the player clicks on the menu-button on the screen
 		{
 		  SDL_FreeSurface(surface1);
 		  SDL_FreeSurface(surface2);
@@ -194,7 +194,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
 		  TTF_CloseFont(Font);
 		  return 0;
 		}
-	      else if (*mousex >= 825 && *mousex <= 1025 && *mousey >= 620 && *mousey <= 770) // Press exit
+	      else if (*mousex >= 825 && *mousex <= 1025 && *mousey >= 620 && *mousey <= 770) // If the player clicks on the exit-button on the screen
 		{
 		  SDL_FreeSurface(surface1);
 		  SDL_FreeSurface(surface2);
@@ -226,7 +226,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   return 1;
 }
 
-int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
+int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter this function if the player clicks on the controls-button on the menu-screen. This will open a window that tells the controls of the game
 {
   int mousex_init = 0;
   int mousey_init = 0;
@@ -290,7 +290,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r)
 	      exit = 1;
 	      break;
 	    case SDL_MOUSEBUTTONDOWN:
-	      if (*mousex >= 395 && *mousex <= 625 && *mousey >= 660 && *mousey <= 760)
+	      if (*mousex >= 395 && *mousex <= 625 && *mousey >= 660 && *mousey <= 760) // If the player clicks on the menu-button shown on the screen
 		{
 		  exit = 1;
 		  break;

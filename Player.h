@@ -2,6 +2,7 @@
 #define PLAYER_H
 #include <string>
 
+// Definition of the class "Player"
 class Player {
  private:
   int Lives; // The amount of lives that the player has left.
