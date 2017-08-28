@@ -1,7 +1,5 @@
 #include "Player.h"
 #include "Functions.h"
-#include <iostream>
-#include <string>
 
 // This file contains the definitions of the functions that the class Player has
 
@@ -28,6 +26,11 @@ int Player::Give_score() // Return the score of the player
 void Player::Reduce_lives() // Reduce the lives of the player by 1
 {
   Lives = Lives - 1;
+}
+
+void Player::Increase_lives() // Increase the lives of the player by 1
+{
+  Lives = Lives + 1;
 }
 
 void Player::Increase_score() // Increase the score of the player by 50

@@ -3,8 +3,6 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #include "Player.h"
-#include <stdio.h>
-#include <string>
 #include <sstream>
 
 std::vector <SDL_Rect*> InitEnemyList() // Create 50 enemies and add them to a vector
@@ -181,6 +179,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
 	    case SDL_MOUSEBUTTONDOWN:
 	      if (*mousex >= 80 && *mousex <= 280 && *mousey >= 620 && *mousey <= 770) // If the player clicks on the menu-button on the screen
 		{
+		  // Free some surfaces and delete some textures
 		  SDL_FreeSurface(surface1);
 		  SDL_FreeSurface(surface2);
 		  SDL_FreeSurface(surfaceScore);
@@ -238,6 +237,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
   SDL_SetRenderDrawColor(r, 0,0,0,255);
   SDL_RenderClear(r);
   SDL_Color White = {255,255,255};
+  // Create some surfaces and textures
   SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "- Left arrow = Move left", White);
   SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "- Right arrow = Move right", White);
   SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "- Space = Shoot", White);
@@ -273,6 +273,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
   Rect5.y = 660;
   Rect5.w = 230;
   Rect5.h = 100;
+  // Copy textures on top of rectangles
   SDL_RenderCopy(r, texture1, NULL, &Rect1);
   SDL_RenderCopy(r, texture2, NULL, &Rect2);
   SDL_RenderCopy(r, texture3, NULL, &Rect3);
@@ -286,7 +287,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
 	{
 	  switch(e.type)
 	    {
-	    case SDL_QUIT:
+	    case SDL_QUIT: // If the user clicks on the x-button on the top left corner of the window
 	      exit = 1;
 	      break;
 	    case SDL_MOUSEBUTTONDOWN:
