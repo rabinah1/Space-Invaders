@@ -473,13 +473,13 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	if (BulletList[k]->y > 800) // If the bullet has moved outside the window
 	  {
 	    // Delete the bullet and remove it from the vector containing the bullets
-	    BulletList.erase(BulletList.begin() + k);
 	    delete(BulletList[k]);
+	    BulletList.erase(BulletList.begin() + k);
 	  }
 	if (SDL_HasIntersection(BulletList[k], &ShipRect) == SDL_TRUE) // If a bullet collides with the player
 	  {
-	    BulletList.erase(BulletList.begin() + k); // Remove the bullet from the vector BulletList
 	    delete(BulletList[k]);
+	    BulletList.erase(BulletList.begin() + k); // Remove the bullet from the vector BulletList
 	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 	    player_1.Reduce_lives(); // Reduce the lives of a player by one
 	    lives.str("");
@@ -494,7 +494,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		    quit = 1;
 		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
 		      {
-			EnemyList.erase(EnemyList.begin() + j);
 			delete(EnemyList[j]);
 		      }
 		    break;
@@ -504,7 +503,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		  {
 		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
 		      {
-			EnemyList.erase(EnemyList.begin() + j);
 			delete(EnemyList[j]);
 		      }
 		    TTF_CloseFont(ButtonFont);
@@ -630,7 +628,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	   quit = 1;
 	   for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
 	     {
-	       EnemyList.erase(EnemyList.begin() + j);
 	       delete(EnemyList[j]);
 	     }
 	   break;
@@ -689,9 +686,8 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		       case SDL_QUIT:
 			 quit = 1;
 			 PauseFlag = 1;
-			 for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+			 for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy.
 			   {
-			     EnemyList.erase(EnemyList.begin() + j);
 			     delete(EnemyList[j]);
 			   }
 			 break;
