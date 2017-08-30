@@ -4,11 +4,12 @@
 #include <stdio.h>
 #include <sstream>
 #include <cstring>
+#include <new>
 #include "Player.h"
 #include "Functions.h"
 
-#define USER "Space_ship.png"
-#define ENEMY "Enemy.png"
+#define USER "Space_ship.png" // The image of the space ship of the player
+#define ENEMY "Enemy.png" // The image of an enemy
 
 int game(SDL_Event e, SDL_Window *w, SDL_Renderer *r);
 
@@ -43,7 +44,7 @@ int main() { // Main-function runs the menu-screen of the game
   // Define fonts, textures etc. for the menu-window
   TTF_Font *HeadingFont = TTF_OpenFont("Ubuntu-B.ttf", 140); // Create a font
   TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 35);
-  SDL_Color Green = {0,255,0}; // Define a color.
+  SDL_Color Green = {0,255,0}; // Define a color
   SDL_Color White = {255,255,255};
   SDL_Texture *EnemyAlien;
   SDL_Surface *surfaceHeading1 = TTF_RenderText_Solid(HeadingFont, "Space", Green); // This is a surface that contains a text "Space"
@@ -71,8 +72,9 @@ int main() { // Main-function runs the menu-screen of the game
   int w_enemy = 0; // The width of the image of an enemy
   int h_enemy = 0; // The height of the image of an enemy
   EnemyAlien = IMG_LoadTexture(r, ENEMY); // Load the image of an enemy
-  SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy); // Get the width and height of the image of an enemy
-  
+  SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy); // Get the width and height of the image of an enemy and save them to variables w_enemy and h_enemy
+
+  // Determine sizes and initial positions of rectangles that contain some textures
   ExampleEnemy1.x = 120; // The x-coordinate of a rectangle
   ExampleEnemy1.y = 580; // The y-coordinate of a rectangle
   ExampleEnemy1.w = w_enemy; // The width of a rectangle
@@ -145,7 +147,7 @@ int main() { // Main-function runs the menu-screen of the game
 	  lastTime = currentTime;
 	}
       
-      SDL_GetMouseState(mousex, mousey); // Get the x- ja y-coordinates of the mouse
+      SDL_GetMouseState(mousex, mousey); // Get the x- ja y-coordinates of the mouse and save them to variables mousex and mousey
       if (SDL_PollEvent(&e)) // Poll for pending events
       {
 	switch(e.type)
@@ -198,6 +200,7 @@ int main() { // Main-function runs the menu-screen of the game
 	   else if (*mousex >= 420 && *mousex <= 620 && *mousey >= 520 && *mousey <= 590) // The user clicks on the "Controls"-button in the menu-screen
 	     {
 	       GuideWindow(e, w, r); // Go to a function that opens a window that contains instructions for the game
+	       // When we return from that function, redraw everything in the menu screen
 	       SDL_RenderClear(r);
 	       SDL_RenderCopy(r, EnemyAlien, NULL, &ExampleEnemy1);
 	       SDL_RenderCopy(r, EnemyAlien, NULL, &ExampleEnemy2);
@@ -231,6 +234,7 @@ int main() { // Main-function runs the menu-screen of the game
   TTF_CloseFont(ButtonFont);
   SDL_DestroyWindow(w);
   SDL_DestroyRenderer(r);
+  SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
   SDL_Quit();
   return 0;
 }
@@ -240,6 +244,8 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   int RoundsPassed = 0; // RoundsPassed is a counter that keeps count on how many rounds the player has passed. One round is passed when all 50 enemies are destroyed and new 50 enemies are created
   int dist_left = 2000; // dist_left is the distance between the leftmost enemy and the left edge of the screen
   int dist_right = 2000; // dist_right is the distance between the rightmost enemy and the right edge of the screen
+  int currentSize = 0;
+  int currentSize2 = 0;
   int ret = 0; // ret is a value that is returned by a function "GameOverWindow" (can be found in the file "Functions.cpp")
   float expDelay = 1.5; // This is "expected delay" between two bullets shot by enemies
   float epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7)))); // Select a random number between -0.7 and 0.7
@@ -248,7 +254,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   unsigned int currentBulletTime = SDL_GetTicks(); // currentBulletTime is the time at which the most recent enemybullet was shot
   unsigned int currentTime = 0; // currentTime and lastTime are used to lock the fps to about 60
   unsigned int lastTime = 0;
-  unsigned int currentEnemyTime = 0; // currentEnemyTime and lastEnemyTime are variable used to determine, how quickly the enemis move
+  unsigned int currentEnemyTime = 0; // currentEnemyTime and lastEnemyTime are variable used to determine how quickly the enemis move
   unsigned int lastEnemyTime = 0;
   int mousex_init = 0;
   int mousey_init = 0;
@@ -275,20 +281,20 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   // Define textures, fonts, rectangles etc. 
   srand (static_cast <unsigned> (time(0))); // Seed the rand()-function
   EnemyList = InitEnemyList(); // Create enemies and add them to a vector. This function can be found in the file "Functions.cpp"
-  Player player_1; // Create an object "player_1" of class "Player"
-  player_1.Set_lives(3); // Set the lives of the player to be 3.
-  player_1.Set_score(0); // Set the score of the player to be 0.
+  Player player_1; // Create an object "player_1" of class "Player". The definition of the Player-class can be found in the file "Player.h"
+  player_1.Set_lives(3); // Set the lives of the player to be 3
+  player_1.Set_score(0); // Set the score of the player to be 0
   std::stringstream score; // The score of the player that will be drawn to the game screen
   std::stringstream lives; // The amount of lives of the player that will be draw to the game screen
   score << player_1.Give_score();
   lives << player_1.Give_lives();
   TTF_Font *ButtonFont = TTF_OpenFont("Ubuntu-L.ttf", 65); // Open a font
-  SDL_Color White = {255,255,255};
+  SDL_Color White = {255,255,255}; // Define a color
   SDL_Surface *surfaceButton1 = TTF_RenderText_Solid(ButtonFont, "Return to menu", White); // Create a surface
   SDL_Surface *surfaceButton2 = TTF_RenderText_Solid(ButtonFont, "Exit", White);
   SDL_Texture *PlayerShip; // A structure that contains representation of pixel data, in this case the image of the player's spaceship
   SDL_Texture *EnemyAlien; // A structure that contas the image of an enemy
-  SDL_Rect ShipRect; // A structure that defines a rectangle.
+  SDL_Rect ShipRect; // A structure that defines a rectangle
   SDL_Rect *PlayerBullet;
   SDL_Rect *EnemyBullet;
   SDL_Surface *surfaceScore = TTF_RenderText_Solid(ButtonFont, score.str().c_str(), White);
@@ -297,9 +303,9 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Surface *livesTextSurface = TTF_RenderText_Solid(ButtonFont, "Lives:", White);
   PlayerShip = IMG_LoadTexture(renderer, USER); // Load the image of the spaceship of the player
   EnemyAlien = IMG_LoadTexture(renderer, ENEMY);
-  SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship
+  SDL_QueryTexture(PlayerShip, NULL, NULL, &w_player, &h_player); // Get the width and height of the player's spaceship and save the to variables w_player and h_player
   SDL_QueryTexture(EnemyAlien, NULL, NULL, &w_enemy, &h_enemy);
-  SDL_SetRenderDrawColor(renderer, 0,0,0,255); // The integer parameters are r,g,b,a where a is the alpha-value
+  SDL_SetRenderDrawColor(renderer, 0,0,0,255); // Set the drawing color of the renderer to black
   SDL_Texture *Button1 = SDL_CreateTextureFromSurface(renderer, surfaceButton1); // Create a texture
   SDL_Texture *Button2 = SDL_CreateTextureFromSurface(renderer, surfaceButton2);
   SDL_Texture *Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
@@ -312,10 +318,12 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_Rect livesRect;
   SDL_Rect scoreTextRect;
   SDL_Rect livesTextRect;
-  Button1Rect.x = 10;
-  Button1Rect.y = 5;
-  Button1Rect.w = 330;
-  Button1Rect.h = 100;
+
+  // Determine sizes and initial positions of rectangles
+  Button1Rect.x = 10; // The x-coordinate of the rectangle's upper left corner
+  Button1Rect.y = 5; // The y-coordinate of the rectangle's upper left corner
+  Button1Rect.w = 330; // The width of the rectangle
+  Button1Rect.h = 100; // The height of the rectangle
   Button2Rect.x = 950;
   Button2Rect.y = 5;
   Button2Rect.w = 120;
@@ -336,10 +344,10 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   livesTextRect.y = 70;
   livesTextRect.w = 90;
   livesTextRect.h = 50;
-  ShipRect.x = 10; // The x-coordinate of the rectangle's upper left corner
-  ShipRect.y = 655; // The y-coordinate of the rectangle's upper left corner
-  ShipRect.w = w_player; // The width of the rectangle
-  ShipRect.h = h_player; // The height of the rectangle
+  ShipRect.x = 10;
+  ShipRect.y = 655;
+  ShipRect.w = w_player;
+  ShipRect.h = h_player;
   SDL_RenderClear(renderer);
   
   for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy
@@ -351,6 +359,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       SDL_RenderCopy(renderer, EnemyAlien, NULL, EnemyList[j]);
     }
   SDL_RenderPresent(renderer); // This function is used to update the screen with any rendering performance since the previous call
+  
   while (quit == 0) { // Start the main loop of the game
     if (EnemyList.size() > 40 && EnemyList.size() <= 50)
       {
@@ -374,18 +383,18 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       }
     if (EnemyList.size() == 0) // If all the enemies are destroyed
       {
-	if (RoundsPassed < 8)
+	if (RoundsPassed < 8) // One round is passed when all 50 enemies are destroyed and new 50 enemies are created
 	  {
 	    RoundsPassed = RoundsPassed + 1;
-	    player_1.Increase_lives();
+	    player_1.Increase_lives(); // Increase the lives of the player by 1
 	    lives.str("");
 	    lives << player_1.Give_lives();
 	    surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
-	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives);
+	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives); // Draw the current amount of lives of the player to the game screen
 	  }
 	EnemyList = InitEnemyList(); // Create 50 new enemies
 	EnemyAmount = 0;
-	for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy.
+	for (int j = 0; j < EnemyList.size(); ++j) // Set the initial positions and sizes of the enemies. Also copy the image of an enemy in place of the rectangle that represent an enemy
 	  {
 	    EnemyList[j]->x = 10 + j*45 - j/10*10*45;
 	    EnemyList[j]->y = 320 + RoundsPassed*30 - h_enemy*(j/10) - j/10*5;
@@ -409,15 +418,15 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
     if (SDL_GetTicks() - currentBulletTime > time_to_wait*1000 && EnemyList.size() != 0) // If enough time has passed since the previous enemy shot a bullet, next enemy may shoot a bullet. Time_to_wait is the time (in seconds) that the enemies must wait between shots
       {
 	currentBulletTime = SDL_GetTicks();
-	randomIndex =  0 + (rand() % static_cast<int>(EnemyList.size()-1 - 0 + 1)); // We choose ranodmly the next enemy to shoot a bullet
-	EnemyBullet = new SDL_Rect;
+	randomIndex =  0 + (rand() % static_cast<int>(EnemyList.size()-1 - 0 + 1)); // We choose ranodmly the next enemy to shoot a bullet. This random number is used as an index to the vector that contains all enemies that are alive
+	EnemyBullet = new SDL_Rect; // Create a new bullet
 	EnemyBullet->w = 5;
 	EnemyBullet->h = 5;
 	EnemyBullet->x = EnemyList[randomIndex]->x + 15;
 	EnemyBullet->y = EnemyList[randomIndex]->y + 30;
 	BulletList.push_back(EnemyBullet); // Add the created bullet to a vector BulletList
 	epsilon = -0.7 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(0.7-(-0.7))));
-	time_to_wait = expDelay + epsilon;
+	time_to_wait = expDelay + epsilon; // Determine the time that must be elapsed until next enemy may shoot a bullet
       }
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, Score, NULL, &scoreRect);
@@ -433,17 +442,47 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    if (ret == 1) // Player pressed exit-button in the window previously opened
 	      {
 		quit = 1;
-		for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy.
+		currentSize = EnemyList.size();
+		currentSize2 = BulletList.size();
+		for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 		  {
-		    delete(EnemyList[j]);
+		    delete EnemyList[0];
+		    EnemyList.erase(EnemyList.begin());
+		  }
+		if (CheckIfDestroyed == 0)
+		  {
+		    delete PlayerBullet;
+		  }
+		if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+		  {
+		    for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+		      {
+			delete BulletList[0];
+			BulletList.erase(BulletList.begin());
+		      }
 		  }
 		break;
 	      }
 	    else // Player pressed menu-button in the window previously opened
 	      {
-		for (int j = 0; j < EnemyList.size(); ++j)
+		currentSize = EnemyList.size();
+		currentSize2 = BulletList.size();
+		for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 		  {
-		    delete(EnemyList[j]);
+		    delete EnemyList[0];
+		    EnemyList.erase(EnemyList.begin());
+		  }
+		if (CheckIfDestroyed == 0)
+		  {
+		    delete PlayerBullet;
+		  }
+		if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+		  {
+		    for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+		      {
+			delete BulletList[0];
+			BulletList.erase(BulletList.begin());
+		      }
 		  }
 		TTF_CloseFont(ButtonFont);
 		SDL_FreeSurface(surfaceButton1);
@@ -468,44 +507,72 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
     for (int k = 0; k < BulletList.size(); ++k) // Loop through all bullets shot by enemies
       {
 	SDL_SetRenderDrawColor(renderer, 255,255,255,255);
-	SDL_RenderFillRect(renderer, BulletList[k]); // Paint the bullet white.
+	SDL_RenderFillRect(renderer, BulletList[k]); // Paint the bullet white
 	BulletList[k]->y = BulletList[k]->y + 7; // Update the position of a bullet
-	if (BulletList[k]->y > 800) // If the bullet has moved outside the window
+	if (BulletList[k]->y > 820) // If the bullet has moved outside the window
 	  {
 	    // Delete the bullet and remove it from the vector containing the bullets
+	    delete BulletList[k];
 	    BulletList.erase(BulletList.begin() + k);
-	    delete(BulletList[k]);
 	  }
-	if (SDL_HasIntersection(BulletList[k], &ShipRect) == SDL_TRUE) // If a bullet collides with the player
+	else if (SDL_HasIntersection(BulletList[k], &ShipRect) == SDL_TRUE) // If a bullet collides with the player
 	  {
+	    delete BulletList[k]; // Free the memory allocated for the bullet
 	    BulletList.erase(BulletList.begin() + k); // Remove the bullet from the vector BulletList
-	    delete(BulletList[k]);
 	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 	    player_1.Reduce_lives(); // Reduce the lives of a player by one
 	    lives.str("");
 	    lives << player_1.Give_lives();
 	    surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
-	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives);
+	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives); // Create an image of the amount of lives of the player that will be drawn to the game screen
 	    if (player_1.Give_lives() < 0) // If the amount of lives of the player is less than 0
 	      {
 		ret = GameOverWindow(event, window, renderer, player_1); // Move to a function that opens a window that tells the player that the game has ended
-		if (ret == 1) // Exit was pressed
+		if (ret == 1) // Exit was pressed in the window previously opened
 		  {
 		    quit = 1;
-		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+		    currentSize = EnemyList.size();
+		    currentSize2 = BulletList.size();
+		    for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 		      {
-			EnemyList.erase(EnemyList.begin() + j);
-			delete(EnemyList[j]);
+			delete EnemyList[0];
+			EnemyList.erase(EnemyList.begin());
+		      }
+		    if (CheckIfDestroyed == 0)
+		      {
+			delete PlayerBullet;
+		      }
+		    if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+		      {
+			for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+			  {
+			    delete BulletList[0];
+			    BulletList.erase(BulletList.begin());
+			  }
 		      }
 		    break;
 		  }
 		
-		else
+		else // Menu was pressed in the window previously opened
 		  {
-		    for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+		    currentSize = EnemyList.size();
+		    currentSize2 = BulletList.size();
+		    for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 		      {
-			EnemyList.erase(EnemyList.begin() + j);
-			delete(EnemyList[j]);
+			delete EnemyList[0];
+			EnemyList.erase(EnemyList.begin());
+		      }
+		    if (CheckIfDestroyed == 0)
+		      {
+			delete PlayerBullet;
+		      }
+		    if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+		      {
+			for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+			  {
+			    delete BulletList[0];
+			    BulletList.erase(BulletList.begin());
+			  }
 		      }
 		    TTF_CloseFont(ButtonFont);
 		    SDL_FreeSurface(surfaceButton1);
@@ -537,8 +604,8 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       {
 	BulletsExist = 0;
       }
-    SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height and width of the window
-    ShipRect.y = *WindowHeight - 45;
+    SDL_GetWindowSize(window, WindowWidth, WindowHeight); // Get the height and width of the window and save them to variables WindowWidth and WindowHeight
+    ShipRect.y = *WindowHeight - 45; // Set the y-coordinate of the top left corner of the image of the player's spaceship
     if (currentEnemyTime - lastEnemyTime >= (1000 - EnemyAmount*150) && EnemyList.size() != 0) // If enough time has elapsed since the last time the enemies moved
       {
 	lastEnemyTime = currentEnemyTime;
@@ -568,7 +635,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	else if (dist_left <= 0) // If the position of the leftmost enemy is less than 0
 	  {
 	    dir = 1;
-	    for (int j = 0; j < EnemyList.size(); ++j) // Move all enemis lower on the screen
+	    for (int j = 0; j < EnemyList.size(); ++j) // Move all enemies lower on the screen
 	      {
 		EnemyList[j]->y = EnemyList[j]->y + 30;
 	      }
@@ -597,6 +664,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	  {
 	    if (SDL_HasIntersection(EnemyList[j], PlayerBullet) == SDL_TRUE) // If the bullet shot by the player collides with an enemy
 	      {
+		delete EnemyList[j];
 		EnemyList.erase(EnemyList.begin()+j); // Remove the enemy from the vector that contains the enemies
 		CheckIfDestroyed = 1;
 		player_1.Increase_score(); // Increase the score of the player by 50
@@ -604,7 +672,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		score << player_1.Give_score();
 		surfaceScore = TTF_RenderText_Solid(ButtonFont, score.str().c_str(), White);
 		Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
-		delete(PlayerBullet);
+		delete PlayerBullet;
 	      }
 	  }
 	if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field
@@ -613,25 +681,39 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
 	    PlayerBullet->y = PlayerBullet->y - 11;
 	    SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-	    if (PlayerBullet->y < 0) // If the bullet has moved outside the window.
+	    if (PlayerBullet->y < 0) // If the bullet has moved outside the window
 	      {
 		CheckIfDestroyed = 1;
-		delete(PlayerBullet);
+		delete PlayerBullet;
 	      }
 	  }
       }
     
     SDL_RenderPresent(renderer);
+    currentSize = EnemyList.size();
+    currentSize2 = BulletList.size();
     if (SDL_PollEvent(&event)) // Poll for pending events
       {
 	switch(event.type)
 	 {
 	 case SDL_QUIT: // If the user clicks on the x-button in the top left corner
 	   quit = 1;
-	   for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+	   for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 	     {
-	       EnemyList.erase(EnemyList.begin() + j);
-	       delete(EnemyList[j]);
+	       delete EnemyList[0];
+	       EnemyList.erase(EnemyList.begin());
+	     }
+	   if (CheckIfDestroyed == 0)
+	     {
+	       delete PlayerBullet;
+	     }
+	   if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+	     {
+	       for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+		 {
+		   delete BulletList[0];
+		   BulletList.erase(BulletList.begin());
+		 }
 	     }
 	   break;
 	   
@@ -662,17 +744,17 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		 SDL_RenderCopy(renderer, Button1, NULL, &Button1Rect);
 		 SDL_RenderCopy(renderer, Button2, NULL, &Button2Rect);
 		 SDL_RenderCopy(renderer, PlayerShip, NULL, &ShipRect);
-		 for (int j = 0; j < EnemyList.size(); ++j) // Loop through all the enemies.
+		 for (int j = 0; j < EnemyList.size(); ++j) // Loop through all the enemies
 		   {
 		     SDL_RenderCopy(renderer, EnemyAlien, NULL, EnemyList[j]);
 		   }
-		 if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field.
+		 if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field
 		   {
 		     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
 		     SDL_RenderFillRect(renderer, PlayerBullet); // Paint the bullet white.
 		     SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 		   }
-		 if (BulletsExist == 1) // If there exists bullets shot by the enemis in the game field
+		 if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
 		   {
 		     SDL_SetRenderDrawColor(renderer, 255,255,255,255);
 		     for (int k = 0; k < BulletList.size(); ++k) // Loop through all the bullets
@@ -689,10 +771,24 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		       case SDL_QUIT:
 			 quit = 1;
 			 PauseFlag = 1;
-			 for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+			 currentSize = EnemyList.size();
+			 currentSize2 = BulletList.size();
+			 for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
 			   {
-			     EnemyList.erase(EnemyList.begin() + j);
-			     delete(EnemyList[j]);
+			     delete EnemyList[0];
+			     EnemyList.erase(EnemyList.begin());
+			   }
+			 if (CheckIfDestroyed == 0)
+			   {
+			     delete PlayerBullet;
+			   }
+			 if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+			   {
+			     for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+			       {
+				 delete BulletList[0];
+				 BulletList.erase(BulletList.begin());
+			       }
 			   }
 			 break;
 			 
@@ -706,6 +802,26 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		       case SDL_MOUSEBUTTONDOWN:
 			 if (*mousex >= 10 && *mousex <= 340 && *mousey >= 5 && *mousey <= 105) // If the player clicks on the menu-button shown on the screen
 			   {
+			     for (int j = 0; j < EnemyList.size(); ++j) // Free the memory allocated for each enemy
+			       currentSize = EnemyList.size();
+			     currentSize2 = BulletList.size();
+			     for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
+			       {
+				 delete EnemyList[0];
+				 EnemyList.erase(EnemyList.begin());
+			       }
+			     if (CheckIfDestroyed == 0)
+			       {
+				 delete PlayerBullet;
+			       }
+			     if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+			       {
+				 for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+				   {
+				     delete BulletList[0];
+				     BulletList.erase(BulletList.begin());
+				   }
+			       }
 			     TTF_CloseFont(ButtonFont);
 			     SDL_FreeSurface(surfaceButton1);
 			     SDL_FreeSurface(surfaceButton2);
@@ -725,6 +841,25 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			   }
 			 else if (*mousex >= 950 && *mousex <= 1070 && *mousey >= 5 && *mousey <= 105) // If the player clicks on the exit-button shown on the screen
 			   {
+			     currentSize = EnemyList.size();
+			     currentSize2 = BulletList.size();
+			     for (int j = 0; j < currentSize; ++j) // Free the memory allocated for each enemy
+			       {
+				 delete EnemyList[0];
+				 EnemyList.erase(EnemyList.begin());
+			       }
+			     if (CheckIfDestroyed == 0)
+			       {
+				 delete PlayerBullet;
+			       }
+			     if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
+			       {
+				 for (int k = 0; k < currentSize2; ++k) // Loop through all the bullets
+				   {
+				     delete BulletList[0];
+				     BulletList.erase(BulletList.begin());
+				   }
+			       }
 			     TTF_CloseFont(ButtonFont);
 			     SDL_FreeSurface(surfaceButton1);
 			     SDL_FreeSurface(surfaceButton2);

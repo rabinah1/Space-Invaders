@@ -4,6 +4,7 @@
 #include "SDL_ttf.h"
 #include "Player.h"
 #include <sstream>
+#include <new>
 
 std::vector <SDL_Rect*> InitEnemyList() // Create 50 enemies and add them to a vector
 {
