@@ -160,18 +160,23 @@ int main() { // Main-function runs the menu-screen of the game
 	     return_value = game(e, w, r); // Call the game-function to start the game
 	     if (return_value != 1) // The return_value is not 1, if the player wants to exit the game, not just return back to menu-window
 	       {
-		 SDL_FreeSurface(surfaceHeading1); // Free a surface
-		 SDL_FreeSurface(surfaceHeading2);
-		 SDL_FreeSurface(surfaceStart);
-		 SDL_FreeSurface(surfaceControls);
-		 SDL_FreeSurface(surfaceExit);
 		 SDL_DestroyTexture(Heading1); // Destroy a texture
 		 SDL_DestroyTexture(Heading2);
 		 SDL_DestroyTexture(StartButton);
 		 SDL_DestroyTexture(ControlsButton);
 		 SDL_DestroyTexture(ExitButton);
+		 SDL_FreeSurface(surfaceHeading1); // Free a surface
+		 SDL_FreeSurface(surfaceHeading2);
+		 SDL_FreeSurface(surfaceStart);
+		 SDL_FreeSurface(surfaceControls);
+		 SDL_FreeSurface(surfaceExit);
 		 TTF_CloseFont(HeadingFont); // Close a font
 		 TTF_CloseFont(ButtonFont);
+		 SDL_DestroyRenderer(r);
+		 SDL_DestroyWindow(w);
+		 TTF_Quit();
+		 SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		 SDL_Quit();
 		 return 0;
 	       }
 	     else // The return_value is 1, if the player wants to return to menu-window
@@ -219,22 +224,23 @@ int main() { // Main-function runs the menu-screen of the game
 	 }
       }
     }
-  
-  SDL_FreeSurface(surfaceHeading1);
-  SDL_FreeSurface(surfaceHeading2);
-  SDL_FreeSurface(surfaceStart);
-  SDL_FreeSurface(surfaceControls);
-  SDL_FreeSurface(surfaceExit);
+
   SDL_DestroyTexture(Heading1);
   SDL_DestroyTexture(Heading2);
   SDL_DestroyTexture(StartButton);
   SDL_DestroyTexture(ControlsButton);
   SDL_DestroyTexture(ExitButton);
+  SDL_FreeSurface(surfaceHeading1);
+  SDL_FreeSurface(surfaceHeading2);
+  SDL_FreeSurface(surfaceStart);
+  SDL_FreeSurface(surfaceControls);
+  SDL_FreeSurface(surfaceExit);
   TTF_CloseFont(HeadingFont);
   TTF_CloseFont(ButtonFont);
-  SDL_DestroyWindow(w);
   SDL_DestroyRenderer(r);
-  SDL_QuitSubSystem(SDL_INIT_EVERYTHING);
+  SDL_DestroyWindow(w);
+  TTF_Quit();
+  SDL_QuitSubSystem(SDL_INIT_VIDEO);
   SDL_Quit();
   return 0;
 }
@@ -389,6 +395,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    player_1.Increase_lives(); // Increase the lives of the player by 1
 	    lives.str("");
 	    lives << player_1.Give_lives();
+	    SDL_FreeSurface(surfaceLives);
 	    surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
 	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives); // Draw the current amount of lives of the player to the game screen
 	  }
@@ -485,12 +492,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		      }
 		  }
 		TTF_CloseFont(ButtonFont);
-		SDL_FreeSurface(surfaceButton1);
-		SDL_FreeSurface(surfaceButton2);
-		SDL_FreeSurface(surfaceScore);
-		SDL_FreeSurface(surfaceLives);
-		SDL_FreeSurface(scoreTextSurface);
-		SDL_FreeSurface(livesTextSurface);
 		SDL_DestroyTexture(Button1);
 		SDL_DestroyTexture(Button2);
 		SDL_DestroyTexture(Score);
@@ -499,6 +500,13 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		SDL_DestroyTexture(LivesText);
 		SDL_DestroyTexture(PlayerShip);
 		SDL_DestroyTexture(EnemyAlien);
+		SDL_DestroyTexture(Button1);
+		SDL_FreeSurface(surfaceButton1);
+		SDL_FreeSurface(surfaceButton2);
+		SDL_FreeSurface(surfaceScore);
+		SDL_FreeSurface(surfaceLives);
+		SDL_FreeSurface(scoreTextSurface);
+		SDL_FreeSurface(livesTextSurface);
 		return 1;
 	      }
 	  }
@@ -523,6 +531,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    player_1.Reduce_lives(); // Reduce the lives of a player by one
 	    lives.str("");
 	    lives << player_1.Give_lives();
+	    SDL_FreeSurface(surfaceLives);
 	    surfaceLives = TTF_RenderText_Solid(ButtonFont, lives.str().c_str(), White);
 	    Lives = SDL_CreateTextureFromSurface(renderer, surfaceLives); // Create an image of the amount of lives of the player that will be drawn to the game screen
 	    if (player_1.Give_lives() < 0) // If the amount of lives of the player is less than 0
@@ -575,12 +584,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			  }
 		      }
 		    TTF_CloseFont(ButtonFont);
-		    SDL_FreeSurface(surfaceButton1);
-		    SDL_FreeSurface(surfaceButton2);
-		    SDL_FreeSurface(surfaceScore);
-		    SDL_FreeSurface(surfaceLives);
-		    SDL_FreeSurface(scoreTextSurface);
-		    SDL_FreeSurface(livesTextSurface);
 		    SDL_DestroyTexture(Button1);
 		    SDL_DestroyTexture(Button2);
 		    SDL_DestroyTexture(Score);
@@ -589,6 +592,12 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		    SDL_DestroyTexture(LivesText);
 		    SDL_DestroyTexture(PlayerShip);
 		    SDL_DestroyTexture(EnemyAlien);
+		    SDL_FreeSurface(surfaceButton1);
+		    SDL_FreeSurface(surfaceButton2);
+		    SDL_FreeSurface(surfaceScore);
+		    SDL_FreeSurface(surfaceLives);
+		    SDL_FreeSurface(scoreTextSurface);
+		    SDL_FreeSurface(livesTextSurface);
 		    return 1;
 		  }
 	      }
@@ -665,14 +674,16 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 	    if (SDL_HasIntersection(EnemyList[j], PlayerBullet) == SDL_TRUE) // If the bullet shot by the player collides with an enemy
 	      {
 		delete EnemyList[j];
+		delete PlayerBullet;
 		EnemyList.erase(EnemyList.begin()+j); // Remove the enemy from the vector that contains the enemies
 		CheckIfDestroyed = 1;
 		player_1.Increase_score(); // Increase the score of the player by 50
 		score.str("");
 		score << player_1.Give_score();
+		SDL_FreeSurface(surfaceScore);
 		surfaceScore = TTF_RenderText_Solid(ButtonFont, score.str().c_str(), White);
 		Score = SDL_CreateTextureFromSurface(renderer, surfaceScore);
-		delete PlayerBullet;
+		break;
 	      }
 	  }
 	if (CheckIfDestroyed == 0) // If there exists a bullet shot by the player in the game field
@@ -823,12 +834,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 				   }
 			       }
 			     TTF_CloseFont(ButtonFont);
-			     SDL_FreeSurface(surfaceButton1);
-			     SDL_FreeSurface(surfaceButton2);
-			     SDL_FreeSurface(surfaceScore);
-			     SDL_FreeSurface(surfaceLives);
-			     SDL_FreeSurface(scoreTextSurface);
-			     SDL_FreeSurface(livesTextSurface);
 			     SDL_DestroyTexture(Button1);
 			     SDL_DestroyTexture(Button2);
 			     SDL_DestroyTexture(Score);
@@ -837,6 +842,12 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			     SDL_DestroyTexture(LivesText);
 			     SDL_DestroyTexture(PlayerShip);
 			     SDL_DestroyTexture(EnemyAlien);
+			     SDL_FreeSurface(surfaceButton1);
+			     SDL_FreeSurface(surfaceButton2);
+			     SDL_FreeSurface(surfaceScore);
+			     SDL_FreeSurface(surfaceLives);
+			     SDL_FreeSurface(scoreTextSurface);
+			     SDL_FreeSurface(livesTextSurface);
 			     return 1; // When the return value is 1, the main()-function knows not to stop the execution of the program
 			   }
 			 else if (*mousex >= 950 && *mousex <= 1070 && *mousey >= 5 && *mousey <= 105) // If the player clicks on the exit-button shown on the screen
@@ -861,12 +872,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 				   }
 			       }
 			     TTF_CloseFont(ButtonFont);
-			     SDL_FreeSurface(surfaceButton1);
-			     SDL_FreeSurface(surfaceButton2);
-			     SDL_FreeSurface(surfaceScore);
-			     SDL_FreeSurface(surfaceLives);
-			     SDL_FreeSurface(scoreTextSurface);
-			     SDL_FreeSurface(livesTextSurface);
 			     SDL_DestroyTexture(Button1);
 			     SDL_DestroyTexture(Button2);
 			     SDL_DestroyTexture(Score);
@@ -875,8 +880,12 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			     SDL_DestroyTexture(LivesText);
 			     SDL_DestroyTexture(PlayerShip);
 			     SDL_DestroyTexture(EnemyAlien);
-			     SDL_DestroyRenderer(renderer);
-			     SDL_DestroyWindow(window);
+			     SDL_FreeSurface(surfaceButton1);
+			     SDL_FreeSurface(surfaceButton2);
+			     SDL_FreeSurface(surfaceScore);
+			     SDL_FreeSurface(surfaceLives);
+			     SDL_FreeSurface(scoreTextSurface);
+			     SDL_FreeSurface(livesTextSurface);
 			     return 0; // When the return value is 0, the main()-function stops the execution of the program
 			   }
 		       }
@@ -892,12 +901,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
       }
   }
   TTF_CloseFont(ButtonFont);
-  SDL_FreeSurface(surfaceButton1);
-  SDL_FreeSurface(surfaceButton2);
-  SDL_FreeSurface(surfaceScore);
-  SDL_FreeSurface(surfaceLives);
-  SDL_FreeSurface(scoreTextSurface);
-  SDL_FreeSurface(livesTextSurface);
   SDL_DestroyTexture(Button1);
   SDL_DestroyTexture(Button2);
   SDL_DestroyTexture(Score);
@@ -906,7 +909,11 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
   SDL_DestroyTexture(LivesText);
   SDL_DestroyTexture(PlayerShip);
   SDL_DestroyTexture(EnemyAlien);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  SDL_FreeSurface(surfaceButton1);
+  SDL_FreeSurface(surfaceButton2);
+  SDL_FreeSurface(surfaceScore);
+  SDL_FreeSurface(surfaceLives);
+  SDL_FreeSurface(scoreTextSurface);
+  SDL_FreeSurface(livesTextSurface);
   return 0;
 }

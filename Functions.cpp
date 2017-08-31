@@ -181,47 +181,47 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
 	      if (*mousex >= 80 && *mousex <= 280 && *mousey >= 620 && *mousey <= 770) // If the player clicks on the menu-button on the screen
 		{
 		  // Free some surfaces and delete some textures
-		  SDL_FreeSurface(surface1);
-		  SDL_FreeSurface(surface2);
-		  SDL_FreeSurface(surfaceScore);
-		  SDL_FreeSurface(surface3);
-		  SDL_FreeSurface(surface4);
 		  SDL_DestroyTexture(texture1);
 		  SDL_DestroyTexture(texture2);
 		  SDL_DestroyTexture(Score);
 		  SDL_DestroyTexture(texture3);
 		  SDL_DestroyTexture(texture4);
+		  SDL_FreeSurface(surface1);
+		  SDL_FreeSurface(surface2);
+		  SDL_FreeSurface(surfaceScore);
+		  SDL_FreeSurface(surface3);
+		  SDL_FreeSurface(surface4);
 		  TTF_CloseFont(Font);
 		  return 0;
 		}
 	      else if (*mousex >= 825 && *mousex <= 1025 && *mousey >= 620 && *mousey <= 770) // If the player clicks on the exit-button on the screen
 		{
-		  SDL_FreeSurface(surface1);
-		  SDL_FreeSurface(surface2);
-		  SDL_FreeSurface(surfaceScore);
-		  SDL_FreeSurface(surface3);
-		  SDL_FreeSurface(surface4);
 		  SDL_DestroyTexture(texture1);
 		  SDL_DestroyTexture(texture2);
 		  SDL_DestroyTexture(Score);
 		  SDL_DestroyTexture(texture3);
 		  SDL_DestroyTexture(texture4);
+		  SDL_FreeSurface(surface1);
+		  SDL_FreeSurface(surface2);
+		  SDL_FreeSurface(surfaceScore);
+		  SDL_FreeSurface(surface3);
+		  SDL_FreeSurface(surface4);
 		  TTF_CloseFont(Font);
 		  return 1;
 		}
 	    }
 	}
     }
-  SDL_FreeSurface(surface1);
-  SDL_FreeSurface(surface2);
-  SDL_FreeSurface(surfaceScore);
-  SDL_FreeSurface(surface3);
-  SDL_FreeSurface(surface4);
   SDL_DestroyTexture(texture1);
   SDL_DestroyTexture(texture2);
   SDL_DestroyTexture(Score);
   SDL_DestroyTexture(texture3);
   SDL_DestroyTexture(texture4);
+  SDL_FreeSurface(surface1);
+  SDL_FreeSurface(surface2);
+  SDL_FreeSurface(surfaceScore);
+  SDL_FreeSurface(surface3);
+  SDL_FreeSurface(surface4);
   TTF_CloseFont(Font);
   return 1;
 }
@@ -300,16 +300,16 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
 	    }
 	}
     }
-  SDL_FreeSurface(surface1);
-  SDL_FreeSurface(surface2);
-  SDL_FreeSurface(surface3);
-  SDL_FreeSurface(surface4);
-  SDL_FreeSurface(surface5);
   SDL_DestroyTexture(texture1);
   SDL_DestroyTexture(texture2);
   SDL_DestroyTexture(texture3);
   SDL_DestroyTexture(texture4);
   SDL_DestroyTexture(texture5);
+  SDL_FreeSurface(surface1);
+  SDL_FreeSurface(surface2);
+  SDL_FreeSurface(surface3);
+  SDL_FreeSurface(surface4);
+  SDL_FreeSurface(surface5);
   TTF_CloseFont(Font);
   TTF_CloseFont(Font2);
   return 0;
