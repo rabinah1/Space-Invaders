@@ -114,17 +114,19 @@ std::vector <SDL_Rect*> InitEnemyList() // Create 50 enemies and add them to a v
 
 int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1) // We will enter this function when the player loses the game. This function will open a window that tells the player that the game has ended.
 {
+
+  // Define variables, textures etc.
   int mousex_init = 0;
   int mousey_init = 0;
   int *mousex = &mousex_init; // X-coordinate of the mouse
   int *mousey = &mousey_init; // Y-coordinate of the mouse
   int quit = 0;
-  TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 80);
+  TTF_Font *Font = TTF_OpenFont("Ubuntu-L.ttf", 80); // Open a font
   std::stringstream score;
   score << player_1.Give_score();
   SDL_SetRenderDrawColor(r, 0,0,0,255); // Set the render draw color to black
   SDL_RenderClear(r);
-  SDL_Color White = {255,255,255};
+  SDL_Color White = {255,255,255}; // Define a color
   SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "Game over", White); // Create a surface that contains some text
   SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "Your score:", White);
   SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "Menu", White);
@@ -140,6 +142,7 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   SDL_Rect Rect3;
   SDL_Rect Rect4;
   SDL_Rect Rect5;
+  
   Rect1.x = 350; // The x-coordinate of the top left corner of a rectangle
   Rect1.y = 170; // The y-coordinate of the top left corner of a rectangle
   Rect1.w = 400; // The width of a rectangle
@@ -166,9 +169,10 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
   SDL_RenderCopy(r, texture3, NULL, &Rect4);
   SDL_RenderCopy(r, texture4, NULL, &Rect5);
   SDL_RenderPresent(r);
-  while(quit == 0)
+  
+  while(quit == 0) // Start the loop that maintains the window
     {
-      SDL_GetMouseState(mousex, mousey); // Get the x- and y-coordinates of the mouse
+      SDL_GetMouseState(mousex, mousey); // Get the x- and y-coordinates of the mouse and save them to variables mousex and mousey
       if (SDL_PollEvent(&e)) // Poll for pending events
 	{
 	  switch(e.type)
@@ -228,6 +232,8 @@ int GameOverWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r, Player player_1)
 
 int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter this function if the player clicks on the controls-button on the menu-screen. This will open a window that tells the controls of the game
 {
+
+  // Define variables, textures etc.
   int mousex_init = 0;
   int mousey_init = 0;
   int *mousex = &mousex_init;
@@ -239,12 +245,12 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
   SDL_RenderClear(r);
   SDL_Color White = {255,255,255};
   // Create some surfaces and textures
-  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "- Left arrow = Move left", White);
+  SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "- Left arrow = Move left", White); // Create a surface containing some text
   SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "- Right arrow = Move right", White);
   SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "- Space = Shoot", White);
   SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "- p = Pause", White);
   SDL_Surface *surface5 = TTF_RenderText_Solid(Font2, "Menu", White);
-  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1);
+  SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1); // Define a texture from a surface
   SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
   SDL_Texture *texture3 = SDL_CreateTextureFromSurface(r, surface3);
   SDL_Texture *texture4 = SDL_CreateTextureFromSurface(r, surface4);
@@ -254,6 +260,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
   SDL_Rect Rect3;
   SDL_Rect Rect4;
   SDL_Rect Rect5;
+  // Determine initial positions and sizes of rectangles
   Rect1.x = 300;
   Rect1.y = 80;
   Rect1.w = 420;
