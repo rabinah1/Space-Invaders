@@ -164,7 +164,7 @@ int main() { // Main-function runs the menu-screen of the game
 	       }
 	     else // The return_value is 1, if the player wants to return to menu-window but not exit the game
 	       {
-		 // Redraw everythin in the menu-screen
+		 // Redraw everything in the menu-screen
 		 SDL_RenderClear(r);
 		 SDL_RenderCopy(r, EnemyAlien, NULL, &ExampleEnemy1);
 		 SDL_RenderCopy(r, EnemyAlien, NULL, &ExampleEnemy2);
@@ -454,7 +454,23 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			BulletList.erase(BulletList.begin());
 		      }
 		  }
-		break;
+		//break;
+		TTF_CloseFont(ButtonFont);
+		SDL_DestroyTexture(Button1);
+		SDL_DestroyTexture(Button2);
+		SDL_DestroyTexture(Score);
+		SDL_DestroyTexture(Lives);
+		SDL_DestroyTexture(ScoreText);
+		SDL_DestroyTexture(LivesText);
+		SDL_DestroyTexture(PlayerShip);
+		SDL_DestroyTexture(EnemyAlien);
+		SDL_FreeSurface(surfaceButton1);
+		SDL_FreeSurface(surfaceButton2);
+		SDL_FreeSurface(surfaceScore);
+		SDL_FreeSurface(surfaceLives);
+		SDL_FreeSurface(scoreTextSurface);
+		SDL_FreeSurface(livesTextSurface);
+		return 1;
 	      }
 	    else // Player pressed menu-button in the window previously opened
 	      {
@@ -486,7 +502,6 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		SDL_DestroyTexture(LivesText);
 		SDL_DestroyTexture(PlayerShip);
 		SDL_DestroyTexture(EnemyAlien);
-		SDL_DestroyTexture(Button1);
 		SDL_FreeSurface(surfaceButton1);
 		SDL_FreeSurface(surfaceButton2);
 		SDL_FreeSurface(surfaceScore);
@@ -536,6 +551,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 		    if (CheckIfDestroyed == 0)
 		      {
 			delete PlayerBullet;
+			CheckIfDestroyed = 1;
 		      }
 		    if (BulletsExist == 1) // If there exists bullets shot by the enemies in the game field
 		      {
@@ -872,7 +888,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			     SDL_FreeSurface(surfaceLives);
 			     SDL_FreeSurface(scoreTextSurface);
 			     SDL_FreeSurface(livesTextSurface);
-			     return 0; // When the return value is 0, the main()-function stops the execution of the program
+			     return 0;
 			   }
 		       }
 		     if (PauseFlag == 1) // If the player wants to unpause the game
