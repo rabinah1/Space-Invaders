@@ -699,7 +699,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 			    PlayerBullet->h = 5;
 			}
 	   
-			else if (event.key.keysym.sym == SDLK_p) { // If the pressed key is p
+			else if (event.key.keysym.sym == SDLK_ESCAPE) { // If the pressed key is esc
 			    while (1) // Pause the game
 				{
 				    SDL_GetMouseState(mousex, mousey);
@@ -751,7 +751,7 @@ int game(SDL_Event event, SDL_Window *window, SDL_Renderer *renderer) {
 						    break;
 			 
 						case SDL_KEYDOWN:
-						    if (event.key.keysym.sym == SDLK_p) // If p-key is pressed
+						    if (event.key.keysym.sym == SDLK_ESCAPE) // If esc is pressed
 							{
 							    PauseFlag = 1;
 							    break;

@@ -248,7 +248,7 @@ int GuideWindow(SDL_Event e, SDL_Window *w, SDL_Renderer *r) // We will enter th
     SDL_Surface *surface1 = TTF_RenderText_Solid(Font, "- Left arrow = Move left", White); // Create a surface containing some text
     SDL_Surface *surface2 = TTF_RenderText_Solid(Font, "- Right arrow = Move right", White);
     SDL_Surface *surface3 = TTF_RenderText_Solid(Font, "- Space = Shoot", White);
-    SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "- p = Pause", White);
+    SDL_Surface *surface4 = TTF_RenderText_Solid(Font, "- esc = Pause", White);
     SDL_Surface *surface5 = TTF_RenderText_Solid(Font2, "Menu", White);
     SDL_Texture *texture1 = SDL_CreateTextureFromSurface(r, surface1); // Define a texture from a surface
     SDL_Texture *texture2 = SDL_CreateTextureFromSurface(r, surface2);
