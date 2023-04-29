@@ -10,4 +10,10 @@ To start this game, you will need the SDL 2 -library. Specifically, you must be 
 
 ## How to start the program
 
-In Linux, open the command line and navigate to the folder containing the files for this program. Now you can type "make" to compile the program. After that, type "./main" to start the game.
+To compile the program, run the following commands in the top-level folder:
+
+autoreconf -i
+./configure
+make
+
+Now you can start the game by running "./space_invaders".
