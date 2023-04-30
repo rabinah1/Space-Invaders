@@ -12,8 +12,10 @@ To start this game, you will need the SDL2-library. Specifically, you must be ab
 
 To compile the program, run the following commands in the top-level folder:
 
+```
 autoreconf -i
 ./configure
 make
+```
 
 Now you can start the game by running "./space_invaders".
